@@ -171,8 +171,9 @@ async function getVehicles() {
 
 
 const pathDataACT = 'actransit/';
-const fNameRoutes = pathDataACT + 'routes.json';
+//const fNameRoutes = pathDataACT + 'routes.json';
 const fNameTrips = pathDataACT + 'trips.json';
+const fNameCalendar = pathDataACT + 'calendar.json';
 const fNameStops = pathDataACT + 'stops.json';
 const fNameStopTimes = pathDataACT + 'stop_times.json';
 const fNameShapes = pathDataACT + 'shapes.json';
@@ -200,6 +201,7 @@ async function getShapes() {
 getMS();
 const shapesJson = await getDataFile(fNameShapes);
 const tripsJson = await getDataFile(fNameTrips);
+const calendarJson = await getDataFile(fNameCalendar);
 const stopsJson = await getDataFile(fNameStops);
 const stopTimesJson = await getDataFile(fNameStopTimes);
 
@@ -280,8 +282,43 @@ makeGenericSlices(stopTimesJson, (e) => e.trip_id, mapTripIdToStopTimes, 'stop t
 getMS('Genericslice time:');
 
 
+// filter based on service id matching today? TODO
+const gDayToday = (new Date()).getDay();  // 0 = sunday 
 
-const trips60 = tripsJson.filter((t) => ( /*t.route_id.startsWith('18') &&*/ '11' == t.service_id));
+const mapServiceIdToCalednar = new Map();
+calendarJson.forEach( cal => {
+	const days = [cal.sunday, cal.monday, cal.tuesday, cal.wednesday, cal.thursday, cal.friday, cal.saturday];
+	cal.today = (parseInt(days[gDayToday]) != 0);  // "0" or "1"
+	console.log("service id ", cal.service_id, ' today ' , cal.today);
+	mapServiceIdToCalednar.set( cal.service_id, cal)
+
+});
+
+
+function isServiceIdOperatingToday( service_id) {
+	
+	const cal = mapServiceIdToCalednar.get(service_id);
+
+
+	if (null == cal) {
+		console.log("servie id not found", service_id);
+		
+	}
+	const retval = cal.today;
+
+
+	if (retval) {
+		return true;
+	}
+	return false;
+	
+	
+}
+
+const t37 = isServiceIdOperatingToday( "37");
+const t52 =  isServiceIdOperatingToday( "52");
+
+const tripsToday = tripsJson.filter((t) => ( /*t.route_id.startsWith('18') &&*/ isServiceIdOperatingToday( t.service_id)));
 
 // make a map to look up by id, note geoid in stops is stop_id in stoptimes
 const mapStopIdToStop = new Map();
@@ -422,7 +459,7 @@ function getVehicleForTrip(trip, currentTime) {
 
 getMS(null);
 
-trips60.forEach(element => {
+tripsToday.forEach(element => {
 	//console.log(element.trip_id)
 	getTimesForTrip(element);
 	//console.log(element.start, element.end)
@@ -446,9 +483,10 @@ function compareHHMMSS(a, b) {
 function getStaticVehicles() {
 	const currentTime = getHHMMSS();
 	const vehicles = [];
-	trips60.forEach(trip => {
+	tripsToday.forEach(trip => {
 		//console.log(element.trip_id)
 
+		// trips crossing midnight TODO
 		if (currentTime >= trip.start) {
 			if (currentTime <= trip.end) {
 				//console.log("Inluding trip ", element.trip_id)
@@ -1279,11 +1317,11 @@ async function handleFilterClick() {
 		);*/
 
 	// ADD NEW CHART
-	const dataShops = [];
+	/*const dataShops = [];
 
 	for (const k of arrShopKeys) {
 		dataShops.push({ bar: k, count: histShopData.get(k) })
-	}
+	}*/
 
 	/*	const dataFault = [];
 		for (const k of faultKeys) {
