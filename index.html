@@ -19,14 +19,7 @@
   		}
 
 
-		.collisionChart {
-			/*display: var(--displayCollisionChart);*/
-		}
-
-		.stopChart {
-		/*	display: var(--displayStopChart);*/
-		}
-
+		
 
 		body {
 			background-color: white;
@@ -154,14 +147,14 @@
 				/*max-height: 40vh;*/
 				max-width: 100vh;
 			}
-
+/*
 			#query-stuff {
 				grid-column: 1;
 				grid-row: 2;
-			}
+			}*/
 
 			.grid-container {
-				grid-template-rows: 60% 37%;
+				grid-template-rows: 100%;
 				height: 98vh;
 			}
 		}
@@ -193,11 +186,11 @@
 				max-height: 100vh;
 				/*max-width: 50vh;*/
 			}
-
+/*
 			#query-stuff {
 				grid-column: 2;
 				grid-row: 1;
-			}
+			}*/
 
 			.grid-container {
 				/*grid-template-rows: 50vh 1fr;*/
@@ -210,18 +203,19 @@
 		/* Large devices (laptops/desktops, 992px and up) */
 		@media only screen and (min-width: 992px) {
 			#osm-map {
-				grid-column: 2;
-				grid-row: 1;
-			}
-
-			#query-stuff {
 				grid-column: 1;
 				grid-row: 1;
 			}
+/*
+			#query-stuff {
+				grid-column: 1;
+				grid-row: 1;
+			}*/
 
 			.grid-container {
 			/*	grid-template-columns: max(15rem, 25%) auto;*/
-			    grid-template-columns: 1% auto;
+			  /*  grid-template-columns: 1% auto; */
+			  grid-template-columns: 100%;
 				height: 98vh;
 			}
 
@@ -391,16 +385,16 @@ Fourth
 			<br />
 
 			--->
-
+<!--
 			<button id="filterButton" class="button">Filter</button>
 			
 			<a id='saveanchor' class='button' download='osm-data.json'>Export</a>
 			
 			<div id='summary'></div>
-
+-->
 			<!-- ADD NEW CHART -->
-			<div><canvas id="shopHist" class="chart"></canvas></div>
-			<!---
+			<!--<div><canvas id="shopHist" class="chart"></canvas></div>
+			
 		
 			<div><canvas id="yearHist" class="chart"></canvas></div>
 			<div><canvas id="hourHist" class="chart"></canvas></div>
@@ -433,6 +427,7 @@ Fourth
 	<!-- now turf is a global object https://turfjs.org/docs/getting-started -->
 
 	<script type="module">
+		
 		import {
 			
 			
@@ -445,11 +440,11 @@ Fourth
 		//populateStreetSelect(mergedTransparencyJson, selectStreet);
 
 		// END INIT STUFF
-
+/*
 		document.querySelector('#filterButton').addEventListener('click', (event) => {
 			handleFilterClick();
 
-		});
+		});*/
 /*
 		document.querySelector('#selectData').addEventListener('change', (event) => {
 

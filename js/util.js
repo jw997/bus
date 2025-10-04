@@ -9,20 +9,20 @@ const pointerFine = mql.matches;
 //Chart.defaults.color = '#000';
 //Chart.defaults.font.size = 14;
 
-const selectData = document.querySelector('#selectData');
+//const selectData = document.querySelector('#selectData');
 
-const checkActive = document.querySelector('#checkActive');
+//const checkActive = document.querySelector('#checkActive');
 //const checkAmenity = document.querySelector('#checkAmenity');
 
-const checkVacant = document.querySelector('#checkVacant');
-const checkLand = document.querySelector('#checkLand');
+//const checkVacant = document.querySelector('#checkVacant');
+//const checkLand = document.querySelector('#checkLand');
 
 
 
 
-const summary = document.querySelector('#summary');
+// summary = document.querySelector('#summary');
 
-const saveanchor = document.getElementById('saveanchor')
+//const saveanchor = document.getElementById('saveanchor')
 
 function getIcon(name) {
 	const icon = new L.Icon({
@@ -147,15 +147,8 @@ async function getVehicleDelay(vid) {
 		const diff = parseTime(prdtime) - parseTime(schdtime);  // + for late - for early
 
 		return diff
-		console.log(diff)
-
 	}
-
 	return null;
-
-
-
-
 }
 
 async function getVehicles() {
@@ -289,7 +282,7 @@ const mapServiceIdToCalednar = new Map();
 calendarJson.forEach( cal => {
 	const days = [cal.sunday, cal.monday, cal.tuesday, cal.wednesday, cal.thursday, cal.friday, cal.saturday];
 	cal.today = (parseInt(days[gDayToday]) != 0);  // "0" or "1"
-	console.log("service id ", cal.service_id, ' today ' , cal.today);
+	//console.log("service id ", cal.service_id, ' today ' , cal.today);
 	mapServiceIdToCalednar.set( cal.service_id, cal)
 
 });
@@ -1110,13 +1103,13 @@ function addMarkers(vehicles
 	console.log('Skipped', skipped);
 	console.log('Plotted', plotted);
 	console.log("markerCount ", markerCount)
-
+/*
 	const summaryMsg = '<br>Active shops: ' + nCountShop +
 		'<br>Vacant: ' + nCountVacant +
 		'<br>Vacant Percentage: ' + (100.0 * nCountVacant / (nCountShop + nCountVacant)).toFixed(1) + '%' +
 		'<br>Land: ' + nCountLand
 		+ '<br>';
-	summary.innerHTML = summaryMsg;
+	summary.innerHTML = summaryMsg;*/
 
 	// set array for download
 	const json = JSON.stringify(arrMappedOsmItems, null, 2);
@@ -1124,7 +1117,7 @@ function addMarkers(vehicles
 		type: "application/json",
 	});
 	const u = URL.createObjectURL(inputblob);
-	saveanchor.href = u;
+	//saveanchor.href = u;
 
 }
 
@@ -1394,11 +1387,11 @@ function handleExportClick() {
 	handleFilterClick();
 }
 
-
+/*
 saveanchor.addEventListener(
 	"click", handleExportClick
 	//	 (event) => (event.target.href = canvas.toDataURL()),
-);
+);*/
 
 
 /* unused stuff
