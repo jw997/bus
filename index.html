@@ -10,16 +10,21 @@
 			--displayStopChart: inline-block;
 		}
 
+		* {
+			touch-action: manipulation;
+		}
+
+
 		.leaflet-tooltip.bus-tooltip {
-  			background-color: transparent;
-  			border: transparent;
-  			box-shadow: none;
-  			font-weight: bold;
-  			font-size: 18px;
-  		}
+			background-color: transparent;
+			border: transparent;
+			box-shadow: none;
+			font-weight: bold;
+			font-size: 18px;
+		}
 
 
-		
+
 
 		body {
 			background-color: white;
@@ -116,8 +121,8 @@
 			overflow-y: scroll;
 			border: 1px solid black;
 
-			display:none
-			/*
+			display: none
+				/*
 			padding: 1em;
 			border: 5px solid red;
 */
@@ -147,7 +152,8 @@
 				/*max-height: 40vh;*/
 				max-width: 100vh;
 			}
-/*
+
+			/*
 			#query-stuff {
 				grid-column: 1;
 				grid-row: 2;
@@ -186,7 +192,8 @@
 				max-height: 100vh;
 				/*max-width: 50vh;*/
 			}
-/*
+
+			/*
 			#query-stuff {
 				grid-column: 2;
 				grid-row: 1;
@@ -206,16 +213,17 @@
 				grid-column: 1;
 				grid-row: 1;
 			}
-/*
+
+			/*
 			#query-stuff {
 				grid-column: 1;
 				grid-row: 1;
 			}*/
 
 			.grid-container {
-			/*	grid-template-columns: max(15rem, 25%) auto;*/
-			  /*  grid-template-columns: 1% auto; */
-			  grid-template-columns: 100%;
+				/*	grid-template-columns: max(15rem, 25%) auto;*/
+				/*  grid-template-columns: 1% auto; */
+				grid-template-columns: 100%;
 				height: 98vh;
 			}
 
@@ -237,14 +245,18 @@
 
 	<link rel="stylesheet" href="./dependencies/legend/leaflet.legend.css" />
 	<script type="text/javascript" src="./dependencies/legend/leaflet.legend.js"></script>
+<!--
+	<script src="https://unpkg.com/pbf@3.0.5/dist/pbf.js"></script>
+	<script src="https://unpkg.com/gtfs-realtime-pbf-js-module@1.0.0/gtfs-realtime.browser.proto.js"><</script>
+-->
 </head>
 
 <body class="sansserif body-container">
 	<div class="grid-container">
-		<div id="query-stuff" >
-			
+		<div id="query-stuff">
+
 			<label>Select export date</label>
-					<br />
+			<br />
 			<select id="selectData" class="select">
 				<option value=".">Latest</option>
 				<option value=".2025-09-01.">2025-09-01</option>
@@ -255,47 +267,49 @@
 			<br />
 
 			<input type="checkbox" id="checkActive" checked="yes"> <label for="checkActive">Active</label><br>
-		
+
 			<input type="checkbox" id="checkVacant" checked="yes"> <label for="checkVacant">Vacant</label><br>
 			<input type="checkbox" id="checkLand" checked="yes"> <label for="checkLand">Land</label><br>
 
-<br />
-	
+			<br />
+
 			<label>Select by Geography</label>
 			<br />
 
-<input type="checkbox" id="checkBerkeley" checked="yes"> <label for="checkBerkeley">Berkeley</label><br>
+			<input type="checkbox" id="checkBerkeley" checked="yes"> <label for="checkBerkeley">Berkeley</label><br>
 
-<label>Business Districts</label><br/>
-<input type="checkbox" id="checkDowntown"> <label for="checkDowntown">Downtown</label><br>
-<input type="checkbox" id="checkNorthside"> <label for="checkNorthside">Northside</label><br>
-<input type="checkbox" id="checkFourth"> <label for="checkFourth">Fourth</label><br>
-<input type="checkbox" id="checkGilman"> <label for="checkGilman">Gilman</label><br>
-<input type="checkbox" id="checkWestbrae"> <label for="checkWestbrae">Westbrae</label><br>
-<input type="checkbox" id="checkNorthbrae"> <label for="checkNorthbrae">Northbrae</label><br>
-<input type="checkbox" id="checkSolano"> <label for="checkSolano">Solano</label><br>
-<input type="checkbox" id="checkNorthshattuck"> <label for="checkNorthshattuck">Northshattuck</label><br>
-<input type="checkbox" id="checkUniversity"> <label for="checkUniversity">University</label><br>
-<input type="checkbox" id="checkTelegraph"> <label for="checkTelegraph">Telegraph</label><br>
-<input type="checkbox" id="checkElmwood"> <label for="checkElmwood">Elmwood</label><br>
-<input type="checkbox" id="checkLorin"> <label for="checkLorin">Lorin</label><br>
+			<label>Business Districts</label><br />
+			<input type="checkbox" id="checkDowntown"> <label for="checkDowntown">Downtown</label><br>
+			<input type="checkbox" id="checkNorthside"> <label for="checkNorthside">Northside</label><br>
+			<input type="checkbox" id="checkFourth"> <label for="checkFourth">Fourth</label><br>
+			<input type="checkbox" id="checkGilman"> <label for="checkGilman">Gilman</label><br>
+			<input type="checkbox" id="checkWestbrae"> <label for="checkWestbrae">Westbrae</label><br>
+			<input type="checkbox" id="checkNorthbrae"> <label for="checkNorthbrae">Northbrae</label><br>
+			<input type="checkbox" id="checkSolano"> <label for="checkSolano">Solano</label><br>
+			<input type="checkbox" id="checkNorthshattuck"> <label for="checkNorthshattuck">Northshattuck</label><br>
+			<input type="checkbox" id="checkUniversity"> <label for="checkUniversity">University</label><br>
+			<input type="checkbox" id="checkTelegraph"> <label for="checkTelegraph">Telegraph</label><br>
+			<input type="checkbox" id="checkElmwood"> <label for="checkElmwood">Elmwood</label><br>
+			<input type="checkbox" id="checkLorin"> <label for="checkLorin">Lorin</label><br>
 
-<label>Streets</label><br/>
-<input type="checkbox" id="checkSanpabloave"> <label for="checkSanpabloave">San Pablo Avenue</label><br>
-<input type="checkbox" id="checkUniversityave"> <label for="checkUniversityave">University Avenue</label><br>
-<input type="checkbox" id="checkSacramentoave"> <label for="checkSacramentoave">Sacramento Avenue</label><br>
-<input type="checkbox" id="checkMlkway"> <label for="checkSacracheckMlkwaymentoave">MLK Way</label><br>
+			<label>Streets</label><br />
+			<input type="checkbox" id="checkSanpabloave"> <label for="checkSanpabloave">San Pablo Avenue</label><br>
+			<input type="checkbox" id="checkUniversityave"> <label for="checkUniversityave">University
+				Avenue</label><br>
+			<input type="checkbox" id="checkSacramentoave"> <label for="checkSacramentoave">Sacramento
+				Avenue</label><br>
+			<input type="checkbox" id="checkMlkway"> <label for="checkSacracheckMlkwaymentoave">MLK Way</label><br>
 
-<input style="display:none;" type="checkbox" id="checkTemescal"> 
+			<input style="display:none;" type="checkbox" id="checkTemescal">
 
-<!--  <label for="checkTemescal">Temescal</label><br> -->
+			<!--  <label for="checkTemescal">Temescal</label><br> -->
 
-<input style="display:none;" type="checkbox" id="checkValencia"> 
+			<input style="display:none;" type="checkbox" id="checkValencia">
 
-<!--  <label for="checkValencia">Valencia</label><br> -->
-<!-- ADD NEW GEO FILTER -->
+			<!--  <label for="checkValencia">Valencia</label><br> -->
+			<!-- ADD NEW GEO FILTER -->
 
-<!---
+			<!---
 
 Fourth
 
@@ -385,7 +399,7 @@ Fourth
 			<br />
 
 			--->
-<!--
+			<!--
 			<button id="filterButton" class="button">Filter</button>
 			
 			<a id='saveanchor' class='button' download='osm-data.json'>Export</a>
@@ -414,9 +428,9 @@ Fourth
 		<div id="osm-map"></div>
 	</div>
 
-	
 
-<!--
+
+	<!--
 	<script src="./dependencies/chart/4.2.0/chart.umd.js"></script>
 
 	<script src="./dependencies/turf/7.2.0/turf.min.js" charset="utf-8"></script>
@@ -427,12 +441,12 @@ Fourth
 	<!-- now turf is a global object https://turfjs.org/docs/getting-started -->
 
 	<script type="module">
-		
+
 		import {
-			
-			
-			
-			  handleFilterClick
+
+
+
+			handleFilterClick
 		} from "./js/util.js";
 
 		// BEGIN INIT STUFF
@@ -440,46 +454,46 @@ Fourth
 		//populateStreetSelect(mergedTransparencyJson, selectStreet);
 
 		// END INIT STUFF
-/*
-		document.querySelector('#filterButton').addEventListener('click', (event) => {
-			handleFilterClick();
-
-		});*/
-/*
-		document.querySelector('#selectData').addEventListener('change', (event) => {
-
-			console.log("Setting visisbility")
-
-			const dataSpec = document.querySelector('#selectData').value;
-
-			var r = document.querySelector(':root');
-
-
-			switch (selectData.value) {
-				case 'T':
-				case 'S':
-				case "SUT":
-					for (const elem of document.querySelectorAll('.stopChart')) {
-						elem.style.display = 'none';
-					}
-					for (const elem of document.querySelectorAll('.collisionChart')) {
-						elem.style.display = '';
-					}
-					break;
-				case "STOPS":
-					r.style.setProperty('--displayCollisionChart', 'none');
-					r.style.setProperty('--displayStopChart', 'inline-block');
-					for (const elem of document.querySelectorAll('.collisionChart')) {
-						elem.style.display = 'none';
-					}
-					for (const elem of document.querySelectorAll('.stopChart')) {
-						elem.style.display = '';
-					}
-					break;
-
-			};
-		})
-*/
+		/*
+				document.querySelector('#filterButton').addEventListener('click', (event) => {
+					handleFilterClick();
+		
+				});*/
+		/*
+				document.querySelector('#selectData').addEventListener('change', (event) => {
+		
+					console.log("Setting visisbility")
+		
+					const dataSpec = document.querySelector('#selectData').value;
+		
+					var r = document.querySelector(':root');
+		
+		
+					switch (selectData.value) {
+						case 'T':
+						case 'S':
+						case "SUT":
+							for (const elem of document.querySelectorAll('.stopChart')) {
+								elem.style.display = 'none';
+							}
+							for (const elem of document.querySelectorAll('.collisionChart')) {
+								elem.style.display = '';
+							}
+							break;
+						case "STOPS":
+							r.style.setProperty('--displayCollisionChart', 'none');
+							r.style.setProperty('--displayStopChart', 'inline-block');
+							for (const elem of document.querySelectorAll('.collisionChart')) {
+								elem.style.display = 'none';
+							}
+							for (const elem of document.querySelectorAll('.stopChart')) {
+								elem.style.display = '';
+							}
+							break;
+		
+					};
+				})
+		*/
 
 	</script>
 </body>

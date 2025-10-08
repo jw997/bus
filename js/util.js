@@ -5,6 +5,43 @@ import { getJson, getMS } from "./utils_helper.js";
 let mql = window.matchMedia("(pointer: fine)");
 const pointerFine = mql.matches;
 
+var map;
+
+const LatitudeDefault = 37.8695;
+const LongitudeDefault = -122.2699;
+
+//setTimeout(function(){ map.invalidateSize()}, 500);
+
+function createMap() {
+	// Where you want to render the map.
+	var element = document.getElementById('osm-map');
+	// Height has to be set. You can do this in CSS too.
+	//element.style = 'height:100vh;';
+	// Create Leaflet map on map element.
+	map = L.map(element, {
+		preferCanvas: true,
+		doubleClickZoom: false
+	});
+	// Add OSM tile layer to the Leaflet map.
+	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+	}).addTo(map);
+	// Target's GPS coordinates.
+	var target = L.latLng(LatitudeDefault, LongitudeDefault); //'37.669', '-122.089'); // hayward 37.6697884,-122.089564
+
+	// Set map's center to target with zoom 14.
+	map.setView(target, 14);
+	// add geojson precincts to map
+}
+
+createMap();
+//TODO create JSON files with numerical fields install of all strings
+
+// TODO draw data as we get it route shapes , static schedule, rt vehicles?
+
+
+
+
 // set default chart font color to black
 //Chart.defaults.color = '#000';
 //Chart.defaults.font.size = 14;
@@ -17,8 +54,186 @@ const pointerFine = mql.matches;
 //const checkVacant = document.querySelector('#checkVacant');
 //const checkLand = document.querySelector('#checkLand');
 
+/*
+
+obj.entity[4].vehicle.trip.trip_id
+"9829010"
+obj.entity[4].vehicle.trip.direction_id
+0
+obj.entity[4].vehicle.position
+Object { latitude: 37.82561111450195, longitude: -122.20952606201172, bearing: 22, odometer: 0, speed: 0 }
+*/
+
+// Try getting vehicle positions once per minute from 511.org
+//  https://api.511.org/transit/VehicleMonitoring?api_key=TOKEN511&agency=AC&FORMAT=
+
+/*
+function makeVehicle511(v) {
+	const mvj = v.MonitoredVehicleJourney;
+
+	const vid = mvj.VehicleRef;
+	const direction = mvj.DirectionRef;
+	const rt = mvj.LineRef;
+	const lat = mvj.VehicleLocation.Latitude;
+	const lon = mvj.VehicleLocation.Longitude;
+
+	var des = mvj.DestinationName;
+
+	if (mvj.MonitoredCall) {
+		des = mvj.MonitoredCall.DestinationDisplay;
+	}
+
+	const tripid = mvj.FramedVehicleJourneyRef.DatedVehicleJourneyRef;
+
+	const veh = { vid: vid, direction: direction, rt: rt, lat: lat, lon: lon, des: des, tripid: tripid, data: '511' };
+	return veh;
+}
+*/
+/*
+					{
+						"RecordedAtTime": "2025-10-06T02:51:47Z",
+						"ValidUntilTime": "",
+						"MonitoredVehicleJourney": {
+							"LineRef": "22",
+							"DirectionRef": "E",
+							"FramedVehicleJourneyRef": {
+								"DataFrameRef": "2025-10-05",
+								"DatedVehicleJourneyRef": "7814010"
+							},
+							"PublishedLineName": "Alcatraz - Peralta - Lakeshore",
+							"OperatorRef": "AC",
+							"OriginRef": "57566",
+							"OriginName": "Addison St & Oxford St",
+							"DestinationRef": "56557",
+							"DestinationName": "Lakeshore Av & Mandana Blvd",
+							"Monitored": true,
+							"InCongestion": null,
+							"VehicleLocation": {
+								"Longitude": "-122.26796",
+								"Latitude": "37.8686447"
+							},
+							"Bearing": "181.0000000000",
+							"Occupancy": "seatsAvailable",
+							"VehicleRef": "1353",
+*/
+
+/*
+	{
+	"Siri": {
+		"ServiceDelivery": {
+			"ResponseTimestamp": "2025-10-06T02:51:55Z",
+			"ProducerRef": "AC",
+			"Status": true,
+			"VehicleMonitoringDelivery": {
+				"version": "1.4",
+				"ResponseTimestamp": "2025-10-06T02:51:55Z",
+				"VehicleActivity": [
+					*/
 
 
+/*
+async function get511ActVehicles() {
+	const TOKEN511 = 'ff6c6152-LOOKITUP';
+	const url = 'https://api.511.org/transit/VehicleMonitoring?api_key=' + TOKEN511 +  '&agency=AC&FORMAT=json';
+
+	const siriObj = await getJson(url);
+
+
+	const vehicles = [];
+
+	
+
+
+	const vList = siriObj.Siri.ServiceDelivery.VehicleMonitoringDelivery.VehicleActivity;
+
+	for (const v of vList) {
+
+		const veh = makeVehicle511(v);
+		vehicles.push(veh)
+
+	}
+	return vehicles;
+}
+*/
+//const vehs511 = await get511ActVehicles();
+/*
+async function getGTFSVehicles() {
+	//const url = 'https://api.actransit.org/transit/gtfsrt/vehicles/?token=TOKEN'
+	//const url = 'https://api.actransit.org/transit/gtfs/current/?token=TOKEN'
+	// ACTRANIST cors problem
+	const vehicles = [];
+
+	//const url = "data/actransit/gtfs-rt-vehicles.protobuf";
+	//"https://stlrealtimevehicles.alligator.workers.dev/?cacheBust=" +
+	const url = 'https://corsproxy.io/?url=https%3A%2F%2Fapi.actransit.org%2Ftransit%2Fgtfsrt%2Fvehicles%2F%3Ftoken%3DTOKEN'
+	//new Date().getTime();
+	let response = await fetch(url);
+	console.log(response);
+	if (response.ok) {
+		// if HTTP-status is 200-299
+		// get the response body (the method explained below)
+		const bufferRes = await response.arrayBuffer();
+		const pbf = new Pbf(new Uint8Array(bufferRes));
+		const obj = FeedMessage.read(pbf);
+
+
+		for (const ent of obj.entity) {
+			const tr = ent.vehicle.trip;
+			const lat = ent.vehicle.position.latitude;
+			const lon = ent.vehicle.position.longitude;
+
+			const veh = makeVehicle(tr, lat, lon);
+			veh.data = 'act gtfsrt'
+			vehicles.push(veh);
+		}
+
+		return vehicles;
+		
+		// Return the data in GeoJSON format:
+		//return {
+		 // type: "FeatureCollection",
+		 // features: gtfsArrayToGeojsonFeatures(obj.entity)
+	//	};
+	 // } else {
+	//	console.error("error:", response.status);
+	 // }
+	}
+}
+*/
+//const gtfsVehicles = await getGTFSVehicles();
+
+/*
+
+
+const pbfToGeojson = async () => {
+	//const url = 'https://api.actransit.org/transit/gtfsrt/vehicles/?token=TOKEN'
+	//const url = 'https://api.actransit.org/transit/gtfs/current/?token=TOKEN'
+	// ACTRANIST cors problem
+
+	const url = "data/actransit/gtfs-rt-vehicles.protobuf";
+	//"https://stlrealtimevehicles.alligator.workers.dev/?cacheBust=" +
+	//new Date().getTime();
+	let response = await fetch(url);
+	console.log(response);
+	if (response.ok) {
+		// if HTTP-status is 200-299
+		// get the response body (the method explained below)
+		const bufferRes = await response.arrayBuffer();
+		const pbf = new Pbf(new Uint8Array(bufferRes));
+		const obj = FeedMessage.read(pbf);
+
+		// Return the data in GeoJSON format:
+		return {
+			type: "FeatureCollection",
+			features: gtfsArrayToGeojsonFeatures(obj.entity)
+		};
+	} else {
+		console.error("error:", response.status);
+	}
+};
+
+const locations = await pbfToGeojson();
+*/
 
 // summary = document.querySelector('#summary');
 
@@ -61,8 +276,6 @@ const black = "#000000";
 
 const grey = "#101010";
 
-//
-"shop", "vacant", "land"
 function getOptionsForMarker(veh) {
 	var colorValue;
 	var rad = 14;
@@ -77,9 +290,17 @@ function getOptionsForMarker(veh) {
 		colorValue = w3_highway_yellow;
 	}
 
-
+	
 	if (!pointerFine) {
 		rad *= 1.5;
+	}
+	var fill  = true;
+	if (veh.data == 'schedule') {
+		fill = false;
+	}
+
+	if (veh.data == 'actrt') {
+//rad *= 1.5;
 	}
 	const retval = {
 		color: colorValue,
@@ -90,6 +311,18 @@ function getOptionsForMarker(veh) {
 	return retval;
 
 }
+
+
+/*
+   service day includes trips that occur on the next calendar day
+   ACTransit hours go up to 27:59:59
+
+   if a trip is on a service that includes yesterday, and the starttime HH is either < 25 (yesterday) or (HH-24) < now 
+   then it passes the start time test
+
+   if the endtime HH > 23 and (HH-24) > now, then it passed the end time test
+
+*/
 
 function parseTime(str) {
 	// convert hh:mm:ss to seconds  hh 0 to 23, mm o to 59 //ss 0 to 59
@@ -106,17 +339,16 @@ function parseTime(str) {
 const t1 = parseTime('19:53:12');
 const t2 = parseTime('19:54:12');
 
-//const TOKEN = 'AB9BD2A779420B5ECAF4172AFCAC6C58'
 const TOKEN = '7FACCE4112DE7621321F5E518EBC9CB1'
 async function getVehicleDelay(vid) {
 	// get next stop prediction, compare pred time vs sched time
-	// https://api.actransit.org/transit/actrealtime/prediction?top=1&token=AB9BD2A779420B5ECAF4172AFCAC6C58&json=y&vid=1646
+	// https://api.actransit.org/transit/actrealtime/prediction?top=1&token=....&json=y&vid=1646
 	/*
 	{"bustime-response":{"error":
 	[{"vid":"1646234","msg":"No data found for parameter"}]}}
 	*/
 	/*
-	{"bustime-response":{"prd":
+	{"bustime-response":{"prd":map
 	[{
 		
 		"prdtm":"20250928 19:39",
@@ -151,16 +383,6 @@ async function getVehicleDelay(vid) {
 	return null;
 }
 
-async function getVehicles() {
-	const url = 'https://api.actransit.org/transit/actrealtime/vehicle/?rt=60&token=' + TOKEN;
-	const json = await getJson(url);
-	const resp = json["bustime-response"];
-	const vehicles = resp.vehicle;
-
-	return vehicles;
-
-}
-
 
 
 const pathDataACT = 'actransit/';
@@ -193,7 +415,9 @@ async function getShapes() {
 }*/
 getMS();
 const shapesJson = await getDataFile(fNameShapes);
+
 const tripsJson = await getDataFile(fNameTrips);
+
 const calendarJson = await getDataFile(fNameCalendar);
 const stopsJson = await getDataFile(fNameStops);
 const stopTimesJson = await getDataFile(fNameStopTimes);
@@ -220,28 +444,6 @@ getMS("Reading jsonfiles")
 shapes is arr of objs ordered by shape_id and shape_pt_sequence
 */
 const mapShapeIdToShape = new Map();
-
-function makeShapeSlices(arrShapes) {
-	const end = arrShapes.length;
-
-	//var lastShapeId = null;
-
-	for (var i = 0; i < end; i++) {
-		const thisId = arrShapes[i].shape_id;
-		// start a new block
-		const begin = i;
-		while ((i < end) && (arrShapes[i].shape_id == thisId)) {
-			i++;
-		}
-
-		const shape = arrShapes.slice(begin, i);
-		console.log("Shape slice ", thisId, ' ', begin, ' ', i);
-
-		mapShapeIdToShape.set(thisId, shape);
-		i--;
-
-	}
-}
 
 function makeGenericSlices(arr, accessorFn, map, msg) {
 	const end = arr.length;
@@ -278,47 +480,52 @@ getMS('Genericslice time:');
 // filter based on service id matching today? TODO
 const gDayToday = (new Date()).getDay();  // 0 = sunday 
 
+// TODO read calendar dates for exceptions
+// https://gtfs.org/documentation/schedule/reference/#calendar_datestxt
+// service_ids can be added or deleted for individual days
+
+
 const mapServiceIdToCalednar = new Map();
-calendarJson.forEach( cal => {
+calendarJson.forEach(cal => {
 	const days = [cal.sunday, cal.monday, cal.tuesday, cal.wednesday, cal.thursday, cal.friday, cal.saturday];
 	cal.today = (parseInt(days[gDayToday]) != 0);  // "0" or "1"
 	//console.log("service id ", cal.service_id, ' today ' , cal.today);
-	mapServiceIdToCalednar.set( cal.service_id, cal)
+	mapServiceIdToCalednar.set(cal.service_id, cal)
 
 });
 
+function isServiceIdOperatingToday(service_id) {
 
-function isServiceIdOperatingToday( service_id) {
-	
 	const cal = mapServiceIdToCalednar.get(service_id);
 
-
 	if (null == cal) {
-		console.log("servie id not found", service_id);
-		
+		console.log("service id not found", service_id);
 	}
 	const retval = cal.today;
-
 
 	if (retval) {
 		return true;
 	}
 	return false;
-	
-	
 }
 
-const t37 = isServiceIdOperatingToday( "37");
-const t52 =  isServiceIdOperatingToday( "52");
+const t37 = isServiceIdOperatingToday("37");
+const t52 = isServiceIdOperatingToday("52");
 
-const tripsToday = tripsJson.filter((t) => ( /*t.route_id.startsWith('18') &&*/ isServiceIdOperatingToday( t.service_id)));
+// TODO maybe include yesterday for those HH >=24 trips  
+const tripsToday = tripsJson.filter((t) => ( /*t.route_id.startsWith('18') &&*/ isServiceIdOperatingToday(t.service_id)));
+
+// make a map from tripid to trip
+const mapTripIdToTrip = new Map();
+tripsToday.forEach( t=> {
+	mapTripIdToTrip.set( parseInt(t.trip_id),t);
+});
 
 // make a map to look up by id, note geoid in stops is stop_id in stoptimes
 const mapStopIdToStop = new Map();
 stopsJson.forEach(st => {
 	mapStopIdToStop.set(st.stop_id, st);
 })
-
 
 const mapShapeidToShape = new Map()
 function getShape(shape_id) {
@@ -445,6 +652,8 @@ function getVehicleForTrip(trip, currentTime) {
 	const intgps = interpolateGPS(trip, thisStopTime, nextStopTime, currentTime);
 	const veh2 = makeVehicle(trip, intgps.lat, intgps.lon);
 
+	veh2.data = 'schedule';
+
 	return veh2;
 
 
@@ -552,6 +761,7 @@ async function getCityBoundary() {
 
 const mapFileNameToJsonData = new Map();
 
+/*
 async function getOsmGeoJsonData(dataFileName) {
 	//const file = './data/osm.geojson';
 	console.log("Loading data from ", dataFileName);
@@ -571,7 +781,7 @@ selectData.addEventListener("change", async (event) => {
 	dataFileName = './data/osm' + selectData.value + 'geojson';
 
 	osmGeoJson = await getOsmGeoJsonData(dataFileName);
-});
+});*/
 
 //console.log("Read ", osmShopJson.elements.length);
 
@@ -582,10 +792,10 @@ const popupFields = [
 	"vid",
 	//	"rtpidatafeed",
 	"bustime",
-	"tmstmp",
+	//"tmstmp",
 	//"lat",
 	//"lon",
-	"hdg",
+	//	"hdg",
 	//	"pid",
 	//	"pdist",
 	"dly",
@@ -600,7 +810,8 @@ const popupFields = [
 	//	"blk",
 	"tripid",
 	//	"tripdyn"
-	'delay'
+	'delay',
+	'data'
 
 ];
 function toolTipMsg(veh) {
@@ -625,29 +836,7 @@ function nodePopup(veh) {
 	return msg;
 }
 
-var map;
 
-function createMap() {
-	// Where you want to render the map.
-	var element = document.getElementById('osm-map');
-	// Height has to be set. You can do this in CSS too.
-	//element.style = 'height:100vh;';
-	// Create Leaflet map on map element.
-	map = L.map(element, {
-		preferCanvas: true
-	});
-	// Add OSM tile layer to the Leaflet map.
-	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-	}).addTo(map);
-	// Target's GPS coordinates.
-	var target = L.latLng('37.669', '-122.089'); // hayward 37.6697884,-122.089564
-
-
-	// Set map's center to target with zoom 14.
-	map.setView(target, 14);
-	// add geojson precincts to map
-}
 
 function createLegend() {
 	const legend = L.control.Legend({
@@ -688,7 +877,7 @@ function createLegend() {
 		.addTo(map);
 }
 
-createMap();
+
 
 
 // add route 60 to map
@@ -728,156 +917,11 @@ function removeAllMakers() {
 	}
 }
 
-const LatitudeDefault = 37.868412;
-const LongitudeDefault = -122.349938;
 
-function isStopAttr(a) {
-	if (a.Stop_GlobalID) {
-		return true;
-	}
-	return false;
 
-}
+
 function incrementMapKey(m, k) {
 	m.set(k, m.get(k) + 1);
-}
-
-/*
-Some amenties are not shops
-*/
-const nonShopAmenityValues = [
-	'archive',
-	'atm',
-	'bbq',
-	'bench',
-	'bicycle_parking',
-	'bicycle_rental',
-	'bicycle_repair_station',
-	'car_sharing',
-	'clock',
-	'drinking_water',
-	'exhibit',
-	'fountain',
-	'give_box',
-	//'fuel',
-	'loading_dock',
-	'locker',
-	'motorcycle_parking',
-	'parking',
-	'parking_entrance',
-	'parking_space',
-	'polling_station',
-	'post_box',
-	'public_bookcase',
-	'recycling',
-	'relay_box',
-
-	// TODO recycling_type==centre 
-
-	'shelter',
-	'table',
-	'taxi',
-	'telephone',
-	'toilets',
-	'vending_machine',
-	'waste_basket',
-	'waste_disposal',
-	'wishing_tree'
-
-
-];
-function isShopLikeAmenity(amenityTag) {
-	const bNonShop = nonShopAmenityValues.includes(amenityTag);
-
-
-	const retval = !bNonShop;
-	return retval
-}
-
-const shopLeisureValues = [
-	'sports_centre',
-
-	'fitness_centre',
-	'sauna'
-];
-
-function isShopLikeLeisure(leisureTag) {
-	const retval = shopLeisureValues.includes(leisureTag);
-
-
-	return retval
-}
-
-
-
-function isShop(tags) {
-	var bRetval = false;
-
-	if (tags.shop || (tags.office) || (tags.craft)) {
-		bRetval = true;
-	}
-
-	if (tags.healthcare) {
-		bRetval = true;
-	}
-
-	if ((tags.leisure) && isShopLikeLeisure(tags.leisure)) {
-		bRetval = true;
-	}
-	if (tags.amenity && isShopLikeAmenity(tags.amenity)) {
-		bRetval = true;
-	}
-	if (tags.tourism == 'hotel') {
-		bRetval = true;
-	}
-	return bRetval;
-}
-
-function isVacant(tags) {
-	var bRetval = false;
-	// include shops
-	if (tags['disused:shop']) {
-		bRetval = true;
-	}
-
-	if (tags['disused:amenity'] && isShopLikeAmenity(tags['disused:amenity'])) {
-		bRetval = true;
-	}
-	if (tags['disused:leisure'] && isShopLikeAmenity(tags['disused:leisure'])) {
-		bRetval = true;
-	}
-	if (tags['disused:office']) {
-		bRetval = true;
-	}
-	if (tags['disused:healthcare']) {
-		bRetval = true;
-	}
-	if (tags.vacant == 'yes') {
-		bRetval = true;
-	}
-	if (tags.abandoned == 'yes') {
-		bRetval = true;
-	}
-
-	if (tags.building && tags.disused == 'yes') {
-		bRetval = true;
-	}
-	/*	if (tags.landuse == 'brownfield') {
-			bRetval = true;
-		}
-		if (tags.landuse == 'greenfield') {
-			bRetval = true;
-		}*/
-	return bRetval;
-}
-
-function isLand(tags) {
-	if (tags.landuse == 'brownfield' || tags.landuse == 'greenfield') {
-		return true;
-	}
-	if (tags.landuse == 'brownfield' || tags.landuse == 'greenfield') {
-		return true;
-	}
 }
 
 function getPointFromeature(feature) {
@@ -1103,13 +1147,13 @@ function addMarkers(vehicles
 	console.log('Skipped', skipped);
 	console.log('Plotted', plotted);
 	console.log("markerCount ", markerCount)
-/*
-	const summaryMsg = '<br>Active shops: ' + nCountShop +
-		'<br>Vacant: ' + nCountVacant +
-		'<br>Vacant Percentage: ' + (100.0 * nCountVacant / (nCountShop + nCountVacant)).toFixed(1) + '%' +
-		'<br>Land: ' + nCountLand
-		+ '<br>';
-	summary.innerHTML = summaryMsg;*/
+	/*
+		const summaryMsg = '<br>Active shops: ' + nCountShop +
+			'<br>Vacant: ' + nCountVacant +
+			'<br>Vacant Percentage: ' + (100.0 * nCountVacant / (nCountShop + nCountVacant)).toFixed(1) + '%' +
+			'<br>Land: ' + nCountLand
+			+ '<br>';
+		summary.innerHTML = summaryMsg;*/
 
 	// set array for download
 	const json = JSON.stringify(arrMappedOsmItems, null, 2);
@@ -1259,10 +1303,60 @@ function createOrUpdateChart(data, chartVar, element, labelText) {
 	return chartVar;
 }
 */
+
+function compareVehicleLists(vehiclesReal, vehiclesStatic) {
+	const setTripsReal = new Set();
+	const setTripsStatic = new Set();
+
+	vehiclesReal.forEach((veh) => {
+		setTripsReal.add(veh.tripid);
+	});
+
+	vehiclesStatic.forEach((veh) => {
+		setTripsStatic.add(parseInt(veh.tripid));
+	});
+
+	const StaticMinusReal = setTripsStatic.difference(setTripsReal);
+
+	const RealMinusStatic = setTripsReal.difference(setTripsStatic);
+	console.log("Static Minus Real")
+	for (const t of StaticMinusReal) {
+		console.log(t)
+	}
+
+	console.log("Real Minus Satic")
+	for (const t of RealMinusStatic) {
+		console.log(t)
+	}
+	console.log("Diff Done")
+}
+
+async function getVehiclesACTRT() {
+	const url = 'https://api.actransit.org/transit/actrealtime/vehicle/?token=' + TOKEN;
+	const json = await getJson(url);
+	const resp = json["bustime-response"];
+	const vehicles = resp.vehicle;
+
+	vehicles.forEach((v) => {
+		v.data = 'actrt';
+		const trip = mapTripIdToTrip.get(v.tripid);
+		if (trip) {
+			v.direction = trip.direction_id;
+		} 	else {
+			v.direction = 'UNKNOWN';
+		}
+	}
+	);
+
+	return vehicles;
+
+}
+
+
 async function handleFilterClick() {
 	console.log('filter click')
 	// ADD NEW CHART
-//	clearHistData(arrShopKeys, histShopData);
+	//	clearHistData(arrShopKeys, histShopData);
 
 	/*	clearHistYearData();
 		clearHistData(arrHourKeys, histHourData);
@@ -1283,12 +1377,24 @@ async function handleFilterClick() {
 	nCountShop = 0
 	nCountLand = 0;
 
-
-	const vehiclesReal = []// await getVehicles();
-
+getMS();
+	const vehiclesReal = await getVehiclesACTRT();
+getMS("act real time");
 	const vehiclesStatic = getStaticVehicles();
+getMS("static schedule");
+/*
+	const vehicles511 = await get511ActVehicles();
+getMS("511")
+const vehiclesgtfs = await getGTFSVehicles();
+getMS("GTFS");
+*/
+	//compareVehicleLists(vehiclesReal, vehiclesStatic);
 
-	const vehicles = vehiclesReal.concat(vehiclesStatic)
+
+
+	const vehicles = vehiclesReal;//.concat(vehiclesStatic);//.concat(vehicles511).concat(vehiclesgtfs);
+
+	//const vehicles =  vehicles511;// gtfsVehicles;
 	removeAllMakers();
 	// get delays
 	/*
@@ -1339,7 +1445,7 @@ async function handleFilterClick() {
 	*/
 	// ADD NEW CHART
 	//histShopChart = createOrUpdateChart(dataShops, histShopChart, document.getElementById('shopHist'),
-//'Commercial sites');
+	//'Commercial sites');
 
 	/*	histFaultChart = createOrUpdateChart(dataFault, histFaultChart, document.getElementById('crashFaultHist'), 'Collisions by Fault');
 	
@@ -1381,7 +1487,7 @@ async function handleFilterClick() {
 }
 
 handleFilterClick();
-setInterval(handleFilterClick, 5 * 1000)
+setInterval(handleFilterClick, 15 * 1000)
 
 function handleExportClick() {
 	handleFilterClick();
