@@ -1,6 +1,5 @@
 import { getJson, getMS } from "./utils_helper.js";
 
-
 // touch or mouse?
 let mql = window.matchMedia("(pointer: fine)");
 const pointerFine = mql.matches;
@@ -39,8 +38,25 @@ createMap();
 
 // TODO draw data as we get it route shapes , static schedule, rt vehicles?
 
+/*
 
+Time - Time in the HH:MM:SS format (H:MM:SS is also accepted). T
+he time is measured from "noon minus 12h" of the service day 
+(effectively midnight except for days on which daylight savings time changes occur). 
+For times occurring after midnight on the service day, enter the time as a value greater than 24:00:00 in HH:MM:SS.
+Example: 14:30:00 for 2:30PM or 25:35:00 for 1:35AM on the next day.
+*/
 
+function getServiceDayStartTimes(tz) {
+
+	const todayStartTime = luxon.DateTime.now().setZone(tz).set({ hour: 12, minute: 0, second: 0, millisecond: 0 }).minus({ hours: 12 });
+	const yesterdayStartTime = luxon.DateTime.now().setZone(tz).plus({ days: -1 }).set({ hour: 12, minute: 0, second: 0, millisecond: 0 }).minus({ hours: 12 });
+
+	return { today: todayStartTime, yesterday: yesterdayStartTime }
+}
+const lx_ServiceDayStarts = getServiceDayStartTimes('US/Pacific');  // used to figure if service is running today and yesteday
+
+//getCurrentTimeInTimezone(null);
 
 // set default chart font color to black
 //Chart.defaults.color = '#000';
@@ -54,186 +70,7 @@ createMap();
 //const checkVacant = document.querySelector('#checkVacant');
 //const checkLand = document.querySelector('#checkLand');
 
-/*
 
-obj.entity[4].vehicle.trip.trip_id
-"9829010"
-obj.entity[4].vehicle.trip.direction_id
-0
-obj.entity[4].vehicle.position
-Object { latitude: 37.82561111450195, longitude: -122.20952606201172, bearing: 22, odometer: 0, speed: 0 }
-*/
-
-// Try getting vehicle positions once per minute from 511.org
-//  https://api.511.org/transit/VehicleMonitoring?api_key=TOKEN511&agency=AC&FORMAT=
-
-/*
-function makeVehicle511(v) {
-	const mvj = v.MonitoredVehicleJourney;
-
-	const vid = mvj.VehicleRef;
-	const direction = mvj.DirectionRef;
-	const rt = mvj.LineRef;
-	const lat = mvj.VehicleLocation.Latitude;
-	const lon = mvj.VehicleLocation.Longitude;
-
-	var des = mvj.DestinationName;
-
-	if (mvj.MonitoredCall) {
-		des = mvj.MonitoredCall.DestinationDisplay;
-	}
-
-	const tripid = mvj.FramedVehicleJourneyRef.DatedVehicleJourneyRef;
-
-	const veh = { vid: vid, direction: direction, rt: rt, lat: lat, lon: lon, des: des, tripid: tripid, data: '511' };
-	return veh;
-}
-*/
-/*
-					{
-						"RecordedAtTime": "2025-10-06T02:51:47Z",
-						"ValidUntilTime": "",
-						"MonitoredVehicleJourney": {
-							"LineRef": "22",
-							"DirectionRef": "E",
-							"FramedVehicleJourneyRef": {
-								"DataFrameRef": "2025-10-05",
-								"DatedVehicleJourneyRef": "7814010"
-							},
-							"PublishedLineName": "Alcatraz - Peralta - Lakeshore",
-							"OperatorRef": "AC",
-							"OriginRef": "57566",
-							"OriginName": "Addison St & Oxford St",
-							"DestinationRef": "56557",
-							"DestinationName": "Lakeshore Av & Mandana Blvd",
-							"Monitored": true,
-							"InCongestion": null,
-							"VehicleLocation": {
-								"Longitude": "-122.26796",
-								"Latitude": "37.8686447"
-							},
-							"Bearing": "181.0000000000",
-							"Occupancy": "seatsAvailable",
-							"VehicleRef": "1353",
-*/
-
-/*
-	{
-	"Siri": {
-		"ServiceDelivery": {
-			"ResponseTimestamp": "2025-10-06T02:51:55Z",
-			"ProducerRef": "AC",
-			"Status": true,
-			"VehicleMonitoringDelivery": {
-				"version": "1.4",
-				"ResponseTimestamp": "2025-10-06T02:51:55Z",
-				"VehicleActivity": [
-					*/
-
-
-/*
-async function get511ActVehicles() {
-	const TOKEN511 = 'ff6c6152-LOOKITUP';
-	const url = 'https://api.511.org/transit/VehicleMonitoring?api_key=' + TOKEN511 +  '&agency=AC&FORMAT=json';
-
-	const siriObj = await getJson(url);
-
-
-	const vehicles = [];
-
-	
-
-
-	const vList = siriObj.Siri.ServiceDelivery.VehicleMonitoringDelivery.VehicleActivity;
-
-	for (const v of vList) {
-
-		const veh = makeVehicle511(v);
-		vehicles.push(veh)
-
-	}
-	return vehicles;
-}
-*/
-//const vehs511 = await get511ActVehicles();
-/*
-async function getGTFSVehicles() {
-	//const url = 'https://api.actransit.org/transit/gtfsrt/vehicles/?token=TOKEN'
-	//const url = 'https://api.actransit.org/transit/gtfs/current/?token=TOKEN'
-	// ACTRANIST cors problem
-	const vehicles = [];
-
-	//const url = "data/actransit/gtfs-rt-vehicles.protobuf";
-	//"https://stlrealtimevehicles.alligator.workers.dev/?cacheBust=" +
-	const url = 'https://corsproxy.io/?url=https%3A%2F%2Fapi.actransit.org%2Ftransit%2Fgtfsrt%2Fvehicles%2F%3Ftoken%3DTOKEN'
-	//new Date().getTime();
-	let response = await fetch(url);
-	console.log(response);
-	if (response.ok) {
-		// if HTTP-status is 200-299
-		// get the response body (the method explained below)
-		const bufferRes = await response.arrayBuffer();
-		const pbf = new Pbf(new Uint8Array(bufferRes));
-		const obj = FeedMessage.read(pbf);
-
-
-		for (const ent of obj.entity) {
-			const tr = ent.vehicle.trip;
-			const lat = ent.vehicle.position.latitude;
-			const lon = ent.vehicle.position.longitude;
-
-			const veh = makeVehicle(tr, lat, lon);
-			veh.data = 'act gtfsrt'
-			vehicles.push(veh);
-		}
-
-		return vehicles;
-		
-		// Return the data in GeoJSON format:
-		//return {
-		 // type: "FeatureCollection",
-		 // features: gtfsArrayToGeojsonFeatures(obj.entity)
-	//	};
-	 // } else {
-	//	console.error("error:", response.status);
-	 // }
-	}
-}
-*/
-//const gtfsVehicles = await getGTFSVehicles();
-
-/*
-
-
-const pbfToGeojson = async () => {
-	//const url = 'https://api.actransit.org/transit/gtfsrt/vehicles/?token=TOKEN'
-	//const url = 'https://api.actransit.org/transit/gtfs/current/?token=TOKEN'
-	// ACTRANIST cors problem
-
-	const url = "data/actransit/gtfs-rt-vehicles.protobuf";
-	//"https://stlrealtimevehicles.alligator.workers.dev/?cacheBust=" +
-	//new Date().getTime();
-	let response = await fetch(url);
-	console.log(response);
-	if (response.ok) {
-		// if HTTP-status is 200-299
-		// get the response body (the method explained below)
-		const bufferRes = await response.arrayBuffer();
-		const pbf = new Pbf(new Uint8Array(bufferRes));
-		const obj = FeedMessage.read(pbf);
-
-		// Return the data in GeoJSON format:
-		return {
-			type: "FeatureCollection",
-			features: gtfsArrayToGeojsonFeatures(obj.entity)
-		};
-	} else {
-		console.error("error:", response.status);
-	}
-};
-
-const locations = await pbfToGeojson();
-*/
 
 // summary = document.querySelector('#summary');
 
@@ -290,17 +127,16 @@ function getOptionsForMarker(veh) {
 		colorValue = w3_highway_yellow;
 	}
 
-	
 	if (!pointerFine) {
 		rad *= 1.5;
 	}
-	var fill  = true;
+	var fill = true;
 	if (veh.data == 'schedule') {
 		fill = false;
 	}
 
 	if (veh.data == 'actrt') {
-//rad *= 1.5;
+		//rad *= 1.5;
 	}
 	const retval = {
 		color: colorValue,
@@ -323,65 +159,30 @@ function getOptionsForMarker(veh) {
    if the endtime HH > 23 and (HH-24) > now, then it passed the end time test
 
 */
+function hhmmssToSeconds(hhcmmcss) {
+	// todo midnight crossing
+	const arr = hhcmmcss.split(':');
+	//const hh = parseInt(arr[0]);
+	const [hh, mm, ss] = arr.map((x) => parseInt(x));
 
-function parseTime(str) {
-	// convert hh:mm:ss to seconds  hh 0 to 23, mm o to 59 //ss 0 to 59
-	const COLON = ':'
-	const sParts = str.split(COLON)
-	const h = parseInt(sParts[0])
-	const m = parseInt(sParts[1])
-	//const s = parseInt(sParts[2])
+	const seconds = hh * 3600 + mm * 60 + ss;
+	return seconds;
 
-	const seconds = (h * 60 + m); //+ s;
-	return seconds
 }
 
-const t1 = parseTime('19:53:12');
-const t2 = parseTime('19:54:12');
+const tv = hhmmssToSeconds('01:02:03'); // 3723
+
+function HHMMSSToMs(hhcmmcss) {
+	const secs = hhmmssToSeconds(hhcmmcss);
+	return 1000 * secs;
+}
+
+
+
+
 
 const TOKEN = '7FACCE4112DE7621321F5E518EBC9CB1'
-async function getVehicleDelay(vid) {
-	// get next stop prediction, compare pred time vs sched time
-	// https://api.actransit.org/transit/actrealtime/prediction?top=1&token=....&json=y&vid=1646
-	/*
-	{"bustime-response":{"error":
-	[{"vid":"1646234","msg":"No data found for parameter"}]}}
-	*/
-	/*
-	{"bustime-response":{"prd":map
-	[{
-		
-		"prdtm":"20250928 19:39",
-	"schdtm":"20250928 19:34",
-	
-	"tmstmp":"20250928 19:39","typ":"A","stpnm":"Tennyson Rd & Tampa Av",
-	"stpid":"51916","vid":"1646","dstp":165,"rt":"60","rtdd":"60","rtdir":"To Cal State East Bay",
-	"des":"Cal State East Bay",
-	
-	"tablockid":"60001","tatripid":"6076087","origtatripno":"11276516","dly":false,"dyn":0,
-	"prdctdn":"Due","zone":"","rid":"6003","tripid":"12919010","tripdyn":0,
-	
-	"geoid":"5811","seq":8,"psgld":"","stst":70200,"stsd":"2025-09-28","flagstop":0}]}}*/
 
-	const url = 'https://api.actransit.org/transit/actrealtime/prediction?top=1&token=' + TOKEN + '&json=y&vid=' + vid;
-	const json = await getJson(url);
-	const resp = json["bustime-response"];
-	const error = resp.error
-	const prd = resp.prd
-
-	if (prd) {
-		const schd = prd[0].schdtm;
-		const pred = prd[0].prdtm;
-		const schdtime = schd.slice(-5)
-		const prdtime = pred.slice(-5)
-
-		console.log(schdtime, ' ', prdtime);
-		const diff = parseTime(prdtime) - parseTime(schdtime);  // + for late - for early
-
-		return diff
-	}
-	return null;
-}
 
 
 
@@ -409,7 +210,7 @@ async function getCSVDataFile(fName) {
 }*/
 /*
 async function getShapes() {
-	const file = './data/actransit/shapes.json';
+	const file = './data/actransit/shapes.json';gD
 	const retval = await getJson(file);
 	return retval;
 }*/
@@ -425,18 +226,46 @@ const stopTimesJson = await getDataFile(fNameStopTimes);
 //const fNameStopTimes = pathDataACT + 'stop_times.txt';
 
 getMS("Reading jsonfiles")
-//getMS();
-//const shapesJson = await getCSVDataFile('actransit/shapes.txt');
-//const stopTimesJson = await getCSVDataFile(fNameStopTimes);
-//const csvurl = 'http://127.0.0.1:8083/data/actransit/shapes.txt';
 
-//const shapesCSVJson = await getCSVDataFile( csvurl );
 
-//const tripsJson = await getDataFile(fNameTrips);
-//const stopsJson = await getDataFile(fNameStops);
-//const stopTimesJson = await getDataFile(fNameStopTimes);
+// filter based on service id matching today? TODO
+const gDayToday = lx_ServiceDayStarts.today.weekday; //(new Date()).getDay();  // 0 = sunday 
 
-//getMS("Reading csv files ")
+const gDayYesterday = lx_ServiceDayStarts.yesterday.weekday; //(new Date()).getDay();  // 0 = sunday 
+
+// map service id to array of 7 booleans for Sun .. Sat service
+const mapServiceIdToCalendar = new Map();
+
+// figure out which service schedules were operating yesterday and today
+calendarJson.forEach(cal => {
+	const days = [cal.sunday, cal.monday, cal.tuesday, cal.wednesday, cal.thursday, cal.friday, cal.saturday];
+	cal.today = (parseInt(days[gDayToday]) != 0);  // "0" or "1"
+	cal.yesterday = (parseInt(days[gDayYesterday]) != 0);
+	//console.log("service id ", cal.service_id, ' today ' , cal.today);
+	mapServiceIdToCalendar.set(cal.service_id, cal)
+});
+
+
+// TODAY include strips from yesterday that might still be running .i.e endtime hh >= 24
+function isServiceIdOperatingToday(t) {
+	const cal = mapServiceIdToCalendar.get(t.service_id);
+
+	if (null == cal) {
+		console.log("service id not found", t.service_id);
+	}
+	const retObj = {today:cal.today,
+					yesterday:cal.yesterday};
+
+
+	return retObj;
+}
+
+const t37 = isServiceIdOperatingToday({service_id:"37"});
+const t52 = isServiceIdOperatingToday({service_id:"52"});
+
+
+
+
 
 
 
@@ -464,61 +293,84 @@ function makeGenericSlices(arr, accessorFn, map, msg) {
 	}
 }
 getMS();
-const shape60 = shapesJson.filter((s) => (s.shape_id.startsWith('shp-60-')));  //shape_id: "shp-10-01",
+stopTimesJson.forEach( obj => {
+	obj.arrival_time = HHMMSSToMs(obj.arrival_time )
+	obj.departure_time = HHMMSSToMs(obj.departure_time);
+})
+
+getMS('translate stop times to ms offsets');
 makeGenericSlices(shapesJson, (e) => e.shape_id, mapShapeIdToShape, 'shapes');
 
 const mapTripIdToStopTimes = new Map();
 makeGenericSlices(stopTimesJson, (e) => e.trip_id, mapTripIdToStopTimes, 'stop times');
 
-//makeShapeSlices(shape60);
-
-
-//makeShapeSlices(shapesJson);
 getMS('Genericslice time:');
 
 
-// filter based on service id matching today? TODO
-const gDayToday = (new Date()).getDay();  // 0 = sunday 
+// TODO use UTC timestamps instead of localtime strings
+function getTimesForTrip(trip) {
+	//const sts = stopTimesJson.filter((st) => (st.trip_id == trip.trip_id))
+	const sts = mapTripIdToStopTimes.get(trip.trip_id)
+	trip.start = sts[0].arrival_time;
+	trip.end = sts[sts.length - 1].departure_time;
+
+	trip.stop_times = sts;
+
+
+	//trip.shape = getShape(trip.shape_id)
+	trip.shape = mapShapeIdToShape.get(trip.shape_id)
+
+	if (!trip.shape) {
+		throw new Error('shape not found for trip ')
+	}
+}
 
 // TODO read calendar dates for exceptions
 // https://gtfs.org/documentation/schedule/reference/#calendar_datestxt
 // service_ids can be added or deleted for individual days
 
 
-const mapServiceIdToCalednar = new Map();
-calendarJson.forEach(cal => {
-	const days = [cal.sunday, cal.monday, cal.tuesday, cal.wednesday, cal.thursday, cal.friday, cal.saturday];
-	cal.today = (parseInt(days[gDayToday]) != 0);  // "0" or "1"
-	//console.log("service id ", cal.service_id, ' today ' , cal.today);
-	mapServiceIdToCalednar.set(cal.service_id, cal)
+// TODO maybe include yesterday for those HH >=24 trips
 
-});
+function bTripsPredicate( t) {
+	const now = Date.now();
+	const whenObj  = isServiceIdOperatingToday(t);
 
-function isServiceIdOperatingToday(service_id) {
+	getTimesForTrip(t);
 
-	const cal = mapServiceIdToCalednar.get(service_id);
+	// it is schedule to run today?
+	if (whenObj.today) {
 
-	if (null == cal) {
-		console.log("service id not found", service_id);
+		if ((lx_ServiceDayStarts.today.ts + t.end ) >= now) {
+			return true;
+		}
+
+		if ((lx_ServiceDayStarts.today.ts + t.start ) >= now) {
+			return true;
+		}
 	}
-	const retval = cal.today;
 
-	if (retval) {
-		return true;
+    // it is schedule to run yesterday
+	if (whenObj.yesterday) {
+
+		if ((lx_ServiceDayStarts.yesterday.ts + t.end ) >= now) {
+			return true;
+		}
+
+		if ((lx_ServiceDayStarts.yesterday.ts + t.start ) >= now) {
+			return true;
+		}
 	}
+
 	return false;
 }
-
-const t37 = isServiceIdOperatingToday("37");
-const t52 = isServiceIdOperatingToday("52");
-
-// TODO maybe include yesterday for those HH >=24 trips  
-const tripsToday = tripsJson.filter((t) => ( /*t.route_id.startsWith('18') &&*/ isServiceIdOperatingToday(t.service_id)));
+const tripsToday = tripsJson.filter((t) => (bTripsPredicate( t) ));
+console.log("Trips today length:", tripsToday.length);
 
 // make a map from tripid to trip
 const mapTripIdToTrip = new Map();
-tripsToday.forEach( t=> {
-	mapTripIdToTrip.set( parseInt(t.trip_id),t);
+tripsToday.forEach(t => {
+	mapTripIdToTrip.set(parseInt(t.trip_id), t);
 });
 
 // make a map to look up by id, note geoid in stops is stop_id in stoptimes
@@ -538,22 +390,7 @@ function getShape(shape_id) {
 }
 
 
-function getTimesForTrip(trip) {
-	//const sts = stopTimesJson.filter((st) => (st.trip_id == trip.trip_id))
-	const sts = mapTripIdToStopTimes.get(trip.trip_id)
-	trip.start = sts[0].arrival_time;
-	trip.end = sts[sts.length - 1].departure_time;
 
-	trip.stop_times = sts;
-
-
-	//trip.shape = getShape(trip.shape_id)
-	trip.shape = mapShapeIdToShape.get(trip.shape_id)
-
-	if (!trip.shape) {
-		throw new Error('shape not found for trip ')
-	}
-}
 
 
 function getStop(stop_id) {
@@ -569,18 +406,7 @@ function makeVehicle(trip, lat, lon) {
 	return veh
 }
 
-function hhmmssToSeconds(hhcmmcss) {
-	// todo midnight crossing
-	const arr = hhcmmcss.split(':');
-	//const hh = parseInt(arr[0]);
-	const [hh, mm, ss] = arr.map((x) => parseInt(x));
 
-	const seconds = hh * 3600 + mm * 60 + ss;
-	return seconds;
-
-}
-
-const tv = hhmmssToSeconds('01:02:03'); // 3723
 
 
 function getShapeGps(shape, shape_dist_traveled) {
@@ -607,12 +433,15 @@ t  = getShapeGps(0,10000);
 */
 
 function interpolateGPS(trip, thisStopTime, nextStopTime, currentTime) {
-	const thisSeconds = hhmmssToSeconds(thisStopTime.arrival_time);
-	const nextSeconds = hhmmssToSeconds(nextStopTime.arrival_time);
-	const currentSeconds = hhmmssToSeconds(currentTime);
+	//const thisSeconds = hhmmssToSeconds(thisStopTime.arrival_time);
+	//const nextSeconds = hhmmssToSeconds(nextStopTime.arrival_time);
+	//const currentSeconds = hhmmssToSeconds(currentTime);
 
-	const total = nextSeconds - thisSeconds;
-	const diff = currentSeconds - thisSeconds;
+	//const total = nextSeconds - thisSeconds;
+	const total = nextStopTime.arrival_time - thisStopTime.arrival_time;
+
+	//const diff = currentSeconds - thisSeconds;
+	const diff = currentTime - trip.basetime - thisStopTime.arrival_time;
 
 	const w2 = diff / total;
 	const w1 = 1.0 - w2;
@@ -637,7 +466,7 @@ function getVehicleForTrip(trip, currentTime) {
 	var nextStopTime;
 	for (const st of trip.stop_times) {
 
-		if (st.arrival_time >= currentTime) {
+		if ((trip.basetime + st.arrival_time) >= currentTime) {
 			nextStopTime = st;
 			break;
 
@@ -664,6 +493,7 @@ getMS(null);
 tripsToday.forEach(element => {
 	//console.log(element.trip_id)
 	getTimesForTrip(element);
+	element.basetime = lx_ServiceDayStarts.today.ts;  // TODO could be yesterday!!
 	//console.log(element.start, element.end)
 });
 
@@ -681,18 +511,29 @@ function compareHHMMSS(a, b) {
 	return a < b;
 }
 // look trhu the trips and find which ones are running now, where there are etc, and synthesize vehicles for them
+function addHHMMSStoTs(ts, hhmmss) {
 
+}
+//TODO switch to using UTC timestampes instead of local time strings
 function getStaticVehicles() {
-	const currentTime = getHHMMSS();
+	const currentTime = Date.now(); //getHHMMSS();
 	const vehicles = [];
+
 	tripsToday.forEach(trip => {
+
+
 		//console.log(element.trip_id)
 
+
+		// TODO handle yesterday
+		const tripStart =  lx_ServiceDayStarts.today.ts + trip.start;
+		const tripEnd = lx_ServiceDayStarts.today.ts  + trip.end;
+
 		// trips crossing midnight TODO
-		if (currentTime >= trip.start) {
-			if (currentTime <= trip.end) {
+		if (currentTime >= tripStart) {
+			if (currentTime <= tripEnd) {
 				//console.log("Inluding trip ", element.trip_id)
-				const veh = getVehicleForTrip(trip, currentTime)
+				const veh = getVehicleForTrip(trip, Date.now())
 				vehicles.push(veh)
 
 			}
@@ -744,9 +585,6 @@ function makePolyLineData(shapes) {
 	const arr = shapes.map(shapeToGPS);
 	return arr;
 }
-
-
-const polyLineData60 = makePolyLineData(shape60);
 
 const polyLineData = makePolyLineData(shapesJson);
 
@@ -821,8 +659,6 @@ function toolTipMsg(veh) {
 function nodePopup(veh) {
 	var msg = "";
 
-
-
 	for (const k of popupFields) {
 		const v = veh[k];
 		if (!(null == v)) {
@@ -891,8 +727,6 @@ mapShapeIdToShape.forEach((v, k, unused) => {
 });
 
 
-var polyline = L.polyline(polyLineData60, { color: 'red' }).addTo(map);
-//var polyline = L.polyline(polyLineData, {color: 'red'}).addTo(map);
 
 var polyline = L.polyline(polyLineBart, { color: 'red' }).addTo(map);
 
@@ -1304,32 +1138,7 @@ function createOrUpdateChart(data, chartVar, element, labelText) {
 }
 */
 
-function compareVehicleLists(vehiclesReal, vehiclesStatic) {
-	const setTripsReal = new Set();
-	const setTripsStatic = new Set();
 
-	vehiclesReal.forEach((veh) => {
-		setTripsReal.add(veh.tripid);
-	});
-
-	vehiclesStatic.forEach((veh) => {
-		setTripsStatic.add(parseInt(veh.tripid));
-	});
-
-	const StaticMinusReal = setTripsStatic.difference(setTripsReal);
-
-	const RealMinusStatic = setTripsReal.difference(setTripsStatic);
-	console.log("Static Minus Real")
-	for (const t of StaticMinusReal) {
-		console.log(t)
-	}
-
-	console.log("Real Minus Satic")
-	for (const t of RealMinusStatic) {
-		console.log(t)
-	}
-	console.log("Diff Done")
-}
 
 async function getVehiclesACTRT() {
 	const url = 'https://api.actransit.org/transit/actrealtime/vehicle/?token=' + TOKEN;
@@ -1342,7 +1151,7 @@ async function getVehiclesACTRT() {
 		const trip = mapTripIdToTrip.get(v.tripid);
 		if (trip) {
 			v.direction = trip.direction_id;
-		} 	else {
+		} else {
 			v.direction = 'UNKNOWN';
 		}
 	}
@@ -1377,22 +1186,22 @@ async function handleFilterClick() {
 	nCountShop = 0
 	nCountLand = 0;
 
-getMS();
-	const vehiclesReal = await getVehiclesACTRT();
-getMS("act real time");
+	getMS();
+	//const vehiclesReal = await getVehiclesACTRT();
+	getMS("act real time");
 	const vehiclesStatic = getStaticVehicles();
-getMS("static schedule");
-/*
-	const vehicles511 = await get511ActVehicles();
-getMS("511")
-const vehiclesgtfs = await getGTFSVehicles();
-getMS("GTFS");
-*/
+	getMS("static schedule");
+	/*
+		const vehicles511 = await get511ActVehicles();
+	getMS("511")
+	const vehiclesgtfs = await getGTFSVehicles();
+	getMS("GTFS");
+	*/
 	//compareVehicleLists(vehiclesReal, vehiclesStatic);
 
 
 
-	const vehicles = vehiclesReal;//.concat(vehiclesStatic);//.concat(vehicles511).concat(vehiclesgtfs);
+	const vehicles =  vehiclesStatic; //vehiclesReal;//.concat(vehiclesStatic);//.concat(vehicles511).concat(vehiclesgtfs);
 
 	//const vehicles =  vehicles511;// gtfsVehicles;
 	removeAllMakers();
@@ -1487,7 +1296,7 @@ getMS("GTFS");
 }
 
 handleFilterClick();
-setInterval(handleFilterClick, 15 * 1000)
+setInterval(handleFilterClick, 5 * 1000)
 
 function handleExportClick() {
 	handleFilterClick();
@@ -1500,12 +1309,293 @@ saveanchor.addEventListener(
 );*/
 
 
-/* unused stuff
+/* unused 
 
+function parseTime(str) {
+	// convert hh:mm:ss to seconds  hh 0 to 23, mm o to 59 //ss 0 to 59
+	const COLON = ':'
+	const sParts = str.split(COLON)
+	const h = parseInt(sParts[0])
+	const m = parseInt(sParts[1])
+	//const s = parseInt(sParts[2])
+
+	const seconds = (h * 60 + m); //+ s;
+	return seconds
+}
+
+const t1 = parseTime('19:53:12');
+const t2 = parseTime('19:54:12');
+
+
+
+function compareVehicleLists(vehiclesReal, vehiclesStatic) {
+	const setTripsReal = new Set();
+	const setTripsStatic = new Set();
+
+	vehiclesReal.forEach((veh) => {
+		setTripsReal.add(veh.tripid);
+	});
+
+	vehiclesStatic.forEach((veh) => {
+		setTripsStatic.add(parseInt(veh.tripid));
+	});
+
+	const StaticMinusReal = setTripsStatic.difference(setTripsReal);
+
+	const RealMinusStatic = setTripsReal.difference(setTripsStatic);
+	console.log("Static Minus Real")
+	for (const t of StaticMinusReal) {
+		console.log(t)
+	}
+
+	console.log("Real Minus Satic")
+	for (const t of RealMinusStatic) {
+		console.log(t)
+	}
+	console.log("Diff Done")
+}
+
+
+async function getVehicleDelay(vid) {
+	// get next stop prediction, compare pred time vs sched time
+	// https://api.actransit.org/transit/actrealtime/prediction?top=1&token=....&json=y&vid=1646
+	
+
+	const url = 'https://api.actransit.org/transit/actrealtime/prediction?top=1&token=' + TOKEN + '&json=y&vid=' + vid;
+	const json = await getJson(url);
+	const resp = json["bustime-response"];
+	const error = resp.error
+	const prd = resp.prd
+
+	if (prd) {
+		const schd = prd[0].schdtm;
+		const pred = prd[0].prdtm;
+		const schdtime = schd.slice(-5)
+		const prdtime = pred.slice(-5)
+
+		console.log(schdtime, ' ', prdtime);
+		const diff = parseTime(prdtime) - parseTime(schdtime);  // + for late - for early
+
+		return diff
+	}
+	return null;
+}
 	
 */
 
+/*
+	{"bustime-response":{"error":
+	[{"vid":"1646234","msg":"No data found for parameter"}]}}
+	*/
+/*
+{"bustime-response":{"prd":map
+[{
+	
+	"prdtm":"20250928 19:39",
+"schdtm":"20250928 19:34",
+	
+"tmstmp":"20250928 19:39","typ":"A","stpnm":"Tennyson Rd & Tampa Av",
+"stpid":"51916","vid":"1646","dstp":165,"rt":"60","rtdd":"60","rtdir":"To Cal State East Bay",
+"des":"Cal State East Bay",
+	
+"tablockid":"60001","tatripid":"6076087","origtatripno":"11276516","dly":false,"dyn":0,
+"prdctdn":"Due","zone":"","rid":"6003","tripid":"12919010","tripdyn":0,
+	
+"geoid":"5811","seq":8,"psgld":"","stst":70200,"stsd":"2025-09-28","flagstop":0}]}}*/
 
+/*
+
+obj.entity[4].vehicle.trip.trip_id
+"9829010"
+obj.entity[4].vehicle.trip.direction_id
+0
+obj.entity[4].vehicle.position
+Object { latitude: 37.82561111450195, longitude: -122.20952606201172, bearing: 22, odometer: 0, speed: 0 }
+*/
+
+// Try getting vehicle positions once per minute from 511.org
+//  https://api.511.org/transit/VehicleMonitoring?api_key=TOKEN511&agency=AC&FORMAT=
+
+/*
+function makeVehicle511(v) {
+	const mvj = v.MonitoredVehicleJourney;
+
+	const vid = mvj.VehicleRef;
+	const direction = mvj.DirectionRef;
+	const rt = mvj.LineRef;
+	const lat = mvj.VehicleLocation.Latitude;
+	const lon = mvj.VehicleLocation.Longitude;
+
+	var des = mvj.DestinationName;
+
+	if (mvj.MonitoredCall) {
+		des = mvj.MonitoredCall.DestinationDisplay;
+	}
+
+	const tripid = mvj.FramedVehicleJourneyRef.DatedVehicleJourneyRef;
+
+	const veh = { vid: vid, direction: direction, rt: rt, lat: lat, lon: lon, des: des, tripid: tripid, data: '511' };
+	return veh;
+}
+*/
+/*
+					{
+						"RecordedAtTime": "2025-10-06T02:51:47Z",
+						"ValidUntilTime": "",
+						"MonitoredVehicleJourney": {
+							"LineRef": "22",
+							"DirectionRef": "E",
+							"FramedVehicleJourneyRef": {
+								"DataFrameRef": "2025-10-05",
+								"DatedVehicleJourneyRef": "7814010"
+							},
+							"PublishedLineName": "Alcatraz - Peralta - Lakeshore",
+							"OperatorRef": "AC",
+							"OriginRef": "57566",
+							"OriginName": "Addison St & Oxford St",
+							"DestinationRef": "56557",
+							"DestinationName": "Lakeshore Av & Mandana Blvd",
+							"Monitored": true,
+							"InCongestion": null,
+							"VehicleLocation": {
+								"Longitude": "-122.26796",
+								"Latitude": "37.8686447"
+							},
+							"Bearing": "181.0000000000",
+							"Occupancy": "seatsAvailable",
+							"VehicleRef": "1353",
+*/
+
+/*
+	{
+	"Siri": {
+		"ServiceDelivery": {
+			"ResponseTimestamp": "2025-10-06T02:51:55Z",
+			"ProducerRef": "AC",
+			"Status": true,
+			"VehicleMonitoringDelivery": {
+				"version": "1.4",
+				"ResponseTimestamp": "2025-10-06T02:51:55Z",
+				"VehicleActivity": [
+					*/
+
+
+/*
+async function get511ActVehicles() {
+	const TOKEN511 = 'ff6c6152-LOOKITUP';
+	const url = 'https://api.511.org/transit/VehicleMonitoring?api_key=' + TOKEN511 +  '&agency=AC&FORMAT=json';
+
+	const siriObj = await getJson(url);
+
+
+	const vehicles = [];
+
+	
+
+
+	const vList = siriObj.Siri.ServiceDelivery.VehicleMonitoringDelivery.VehicleActivity;
+
+	for (const v of vList) {
+
+		const veh = makeVehicle511(v);
+		vehicles.push(veh)
+
+	}
+	return vehicles;
+}
+*/
+//const vehs511 = await get511ActVehicles();
+/*
+async function getGTFSVehicles() {
+	//const url = 'https://api.actransit.org/transit/gtfsrt/vehicles/?token=TOKEN'
+	//const url = 'https://api.actransit.org/transit/gtfs/current/?token=TOKEN'
+	// ACTRANIST cors problem
+	const vehicles = [];
+
+	//const url = "data/actransit/gtfs-rt-vehicles.protobuf";
+	//"https://stlrealtimevehicles.alligator.workers.dev/?cacheBust=" +
+	const url = 'https://corsproxy.io/?url=https%3A%2F%2Fapi.actransit.org%2Ftransit%2Fgtfsrt%2Fvehicles%2F%3Ftoken%3DTOKEN'
+	//new Date().getTime();
+	let response = await fetch(url);
+	console.log(response);
+	if (response.ok) {
+		// if HTTP-status is 200-299
+		// get the response body (the method explained below)
+		const bufferRes = await response.arrayBuffer();
+		const pbf = new Pbf(new Uint8Array(bufferRes));
+		const obj = FeedMessage.read(pbf);
+
+
+		for (const ent of obj.entity) {
+			const tr = ent.vehicle.trip;
+			const lat = ent.vehicle.position.latitude;
+			const lon = ent.vehicle.position.longitude;
+
+			const veh = makeVehicle(tr, lat, lon);
+			veh.data = 'act gtfsrt'
+			vehicles.push(veh);
+		}
+
+		return vehicles;
+		
+		// Return the data in GeoJSON format:
+		//return {
+		 // type: "FeatureCollection",
+		 // features: gtfsArrayToGeojsonFeatures(obj.entity)
+	//	};
+	 // } else {
+	//	console.error("error:", response.status);
+	 // }
+	}
+}
+*/
+//const gtfsVehicles = await getGTFSVehicles();
+
+/*
+
+
+const pbfToGeojson = async () => {
+	//const url = 'https://api.actransit.org/transit/gtfsrt/vehicles/?token=TOKEN'
+	//const url = 'https://api.actransit.org/transit/gtfs/current/?token=TOKEN'
+	// ACTRANIST cors problem
+
+	const url = "data/actransit/gtfs-rt-vehicles.protobuf";
+	//"https://stlrealtimevehicles.alligator.workers.dev/?cacheBust=" +
+	//new Date().getTime();
+	let response = await fetch(url);
+	console.log(response);
+	if (response.ok) {
+		// if HTTP-status is 200-299
+		// get the response body (the method explained below)
+		const bufferRes = await response.arrayBuffer();
+		const pbf = new Pbf(new Uint8Array(bufferRes));
+		const obj = FeedMessage.read(pbf);
+
+		// Return the data in GeoJSON format:
+		return {
+			type: "FeatureCollection",
+			features: gtfsArrayToGeojsonFeatures(obj.entity)
+		};
+	} else {
+		console.error("error:", response.status);
+	}
+};
+
+const locations = await pbfToGeojson();
+*/
+
+//getMS();
+//const shapesJson = await getCSVDataFile('actransit/shapes.txt');
+//const stopTimesJson = await getCSVDataFile(fNameStopTimes);
+//const csvurl = 'http://127.0.0.1:8083/data/actransit/shapes.txt';
+
+//const shapesCSVJson = await getCSVDataFile( csvurl );
+
+//const tripsJson = await getDataFile(fNameTrips);
+//const stopsJson = await getDataFile(fNameStops);
+//const stopTimesJson = await getDataFile(fNameStopTimes);
+
+//getMS("Reading csv files ")
 
 
 export {
