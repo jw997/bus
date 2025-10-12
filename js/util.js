@@ -1187,9 +1187,9 @@ async function handleFilterClick() {
 	nCountLand = 0;
 
 	getMS();
-	//const vehiclesReal = await getVehiclesACTRT();
+	const vehiclesReal = await getVehiclesACTRT();
 	getMS("act real time");
-	const vehiclesStatic = getStaticVehicles();
+	//const vehiclesStatic = getStaticVehicles();
 	getMS("static schedule");
 	/*
 		const vehicles511 = await get511ActVehicles();
@@ -1201,7 +1201,7 @@ async function handleFilterClick() {
 
 
 
-	const vehicles =  vehiclesStatic; //vehiclesReal;//.concat(vehiclesStatic);//.concat(vehicles511).concat(vehiclesgtfs);
+	const vehicles =  vehiclesReal;//.concat(vehiclesStatic);//.concat(vehicles511).concat(vehiclesgtfs);
 
 	//const vehicles =  vehicles511;// gtfsVehicles;
 	removeAllMakers();
@@ -1296,7 +1296,7 @@ async function handleFilterClick() {
 }
 
 handleFilterClick();
-setInterval(handleFilterClick, 5 * 1000)
+setInterval(handleFilterClick, 15 * 1000)
 
 function handleExportClick() {
 	handleFilterClick();
