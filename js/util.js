@@ -5,6 +5,9 @@ let mql = window.matchMedia("(pointer: fine)");
 const pointerFine = mql.matches;
 
 var map;
+var osm;
+var lgStaticBusMarkers;
+var lgRTBusMarkers;
 
 const LatitudeDefault = 37.8695;
 const LongitudeDefault = -122.2699;
@@ -17,20 +20,40 @@ function createMap() {
 	// Height has to be set. You can do this in CSS too.
 	//element.style = 'height:100vh;';
 	// Create Leaflet map on map element.
+	// Add OSM tile layer to the Leaflet map.
+	osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+	});
+
+	lgStaticBusMarkers = L.layerGroup();
+	lgRTBusMarkers = L.layerGroup();
+
 	map = L.map(element, {
 		preferCanvas: true,
-		doubleClickZoom: false
+		doubleClickZoom: false,
+		layers: [osm,/* lgStaticBusMarkers,*/ lgRTBusMarkers]
 	});
-	// Add OSM tile layer to the Leaflet map.
-	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-	}).addTo(map);
+
 	// Target's GPS coordinates.
 	var target = L.latLng(LatitudeDefault, LongitudeDefault); //'37.669', '-122.089'); // hayward 37.6697884,-122.089564
 
+
+
 	// Set map's center to target with zoom 14.
 	map.setView(target, 14);
-	// add geojson precincts to map
+
+	// add layer control to map
+	var baseLayers = {
+
+		"OpenStreetMap": osm
+	};
+
+	var overlays = {
+		"Schedule": lgStaticBusMarkers,
+		"Realtime": lgRTBusMarkers
+	};
+
+	L.control.layers(null, overlays, { collapsed: false }).addTo(map);
 }
 
 createMap();
@@ -253,15 +276,17 @@ function isServiceIdOperatingToday(t) {
 	if (null == cal) {
 		console.log("service id not found", t.service_id);
 	}
-	const retObj = {today:cal.today,
-					yesterday:cal.yesterday};
+	const retObj = {
+		today: cal.today,
+		yesterday: cal.yesterday
+	};
 
 
 	return retObj;
 }
 
-const t37 = isServiceIdOperatingToday({service_id:"37"});
-const t52 = isServiceIdOperatingToday({service_id:"52"});
+const t37 = isServiceIdOperatingToday({ service_id: "37" });
+const t52 = isServiceIdOperatingToday({ service_id: "52" });
 
 
 
@@ -293,8 +318,8 @@ function makeGenericSlices(arr, accessorFn, map, msg) {
 	}
 }
 getMS();
-stopTimesJson.forEach( obj => {
-	obj.arrival_time = HHMMSSToMs(obj.arrival_time )
+stopTimesJson.forEach(obj => {
+	obj.arrival_time = HHMMSSToMs(obj.arrival_time)
 	obj.departure_time = HHMMSSToMs(obj.departure_time);
 })
 
@@ -332,39 +357,48 @@ function getTimesForTrip(trip) {
 
 // TODO maybe include yesterday for those HH >=24 trips
 
-function bTripsPredicate( t) {
+function bTripsPredicate(t) {
 	const now = Date.now();
-	const whenObj  = isServiceIdOperatingToday(t);
+	const whenObj = isServiceIdOperatingToday(t);
+
+	if (t.trip_id == 200070 || t.trip_id == '200070') {
+		console.log("break 200070");
+	}
 
 	getTimesForTrip(t);
+
+	const HOUR = 3600000;
+
 
 	// it is schedule to run today?
 	if (whenObj.today) {
 
-		if ((lx_ServiceDayStarts.today.ts + t.end ) >= now) {
+		if ((lx_ServiceDayStarts.today.ts + t.end + HOUR) >= now) {  // solve the red dot problem
 			return true;
 		}
 
-		if ((lx_ServiceDayStarts.today.ts + t.start ) >= now) {
+		if ((lx_ServiceDayStarts.today.ts + t.start) >= now) {
 			return true;
 		}
 	}
 
-    // it is schedule to run yesterday
+	// it is schedule to run yesterday
 	if (whenObj.yesterday) {
 
-		if ((lx_ServiceDayStarts.yesterday.ts + t.end ) >= now) {
+		if ((lx_ServiceDayStarts.yesterday.ts + t.end) >= now) {
 			return true;
 		}
 
-		if ((lx_ServiceDayStarts.yesterday.ts + t.start ) >= now) {
+		if ((lx_ServiceDayStarts.yesterday.ts + t.start) >= now) {
 			return true;
 		}
 	}
+
+	console.log("Skipping trip ", t.trip_id);
 
 	return false;
 }
-const tripsToday = tripsJson.filter((t) => (bTripsPredicate( t) ));
+const tripsToday = tripsJson.filter((t) => (bTripsPredicate(t)));
 console.log("Trips today length:", tripsToday.length);
 
 // make a map from tripid to trip
@@ -526,8 +560,8 @@ function getStaticVehicles() {
 
 
 		// TODO handle yesterday
-		const tripStart =  lx_ServiceDayStarts.today.ts + trip.start;
-		const tripEnd = lx_ServiceDayStarts.today.ts  + trip.end;
+		const tripStart = lx_ServiceDayStarts.today.ts + trip.start;
+		const tripEnd = lx_ServiceDayStarts.today.ts + trip.end;
 
 		// trips crossing midnight TODO
 		if (currentTime >= tripStart) {
@@ -636,7 +670,7 @@ const popupFields = [
 	//	"hdg",
 	//	"pid",
 	//	"pdist",
-	"dly",
+//	"dly",
 	"spd",
 	//	"tablockid",
 	//	"tatripid",
@@ -746,9 +780,12 @@ resizeObserver.observe(document.getElementById('osm-map'));
 const markers = [];
 
 function removeAllMakers() {
+	lgRTBusMarkers.clearLayers();
+	lgStaticBusMarkers.clearLayers();
+	/*
 	for (const m of markers) {
 		m.remove();
-	}
+	}*/
 }
 
 
@@ -920,15 +957,14 @@ var nCountVacant = 0;
 var nCountShop = 0;
 var nCountLand = 0;
 
-function addMarkers(vehicles
-) {
+function addMarkers(vehicles, layerGroup) {
 	//removeAllMakers();
 	//const markersAtLocation = new Map();
 	// add collisions to map
 	var markerCount = 0
-	var skipped = 0, plotted = 0;
+	var skipped = 0;//, plotted = 0;
 
-	var arrMappedOsmItems = [];
+	//var arrMappedOsmItems = [];
 
 	for (const veh of vehicles) {
 
@@ -968,7 +1004,7 @@ function addMarkers(vehicles
 				marker.bindPopup(msg).openPopup();
 			}
 
-			marker.addTo(map);
+			marker.addTo(layerGroup);
 			markers.push(marker);
 			markerCount++;
 		} else {
@@ -978,8 +1014,8 @@ function addMarkers(vehicles
 			skipped++;
 		}
 	}
-	console.log('Skipped', skipped);
-	console.log('Plotted', plotted);
+//	console.log('Skipped', skipped);
+	//console.log('Plotted', plotted);
 	console.log("markerCount ", markerCount)
 	/*
 		const summaryMsg = '<br>Active shops: ' + nCountShop +
@@ -990,11 +1026,11 @@ function addMarkers(vehicles
 		summary.innerHTML = summaryMsg;*/
 
 	// set array for download
-	const json = JSON.stringify(arrMappedOsmItems, null, 2);
-	const inputblob = new Blob([json], {
-		type: "application/json",
-	});
-	const u = URL.createObjectURL(inputblob);
+	//const json = JSON.stringify(arrMappedOsmItems, null, 2);
+//	//const inputblob = new Blob([json], {
+//		type: "application/json",
+//	});
+//	const u = URL.createObjectURL(inputblob);
 	//saveanchor.href = u;
 
 }
@@ -1185,11 +1221,16 @@ async function handleFilterClick() {
 
 	nCountShop = 0
 	nCountLand = 0;
-
+	var vehiclesReal;
 	getMS();
-	const vehiclesReal = await getVehiclesACTRT();
+	if (map.hasLayer(lgRTBusMarkers)) {
+		vehiclesReal = await getVehiclesACTRT();
+	}
 	getMS("act real time");
-	//const vehiclesStatic = getStaticVehicles();
+	var vehiclesStatic
+	if (map.hasLayer(lgStaticBusMarkers)) {
+		vehiclesStatic = getStaticVehicles();
+	}
 	getMS("static schedule");
 	/*
 		const vehicles511 = await get511ActVehicles();
@@ -1201,7 +1242,7 @@ async function handleFilterClick() {
 
 
 
-	const vehicles =  vehiclesReal;//.concat(vehiclesStatic);//.concat(vehicles511).concat(vehiclesgtfs);
+	//const vehicles =  vehiclesReal;//.concat(vehiclesStatic);//.concat(vehicles511).concat(vehiclesgtfs);
 
 	//const vehicles =  vehicles511;// gtfsVehicles;
 	removeAllMakers();
@@ -1211,7 +1252,14 @@ async function handleFilterClick() {
 		veh.delay = await getVehicleDelay(veh.vid) + ' minutes'
 	}*/
 
-	addMarkers(vehicles);
+
+	if (map.hasLayer(lgStaticBusMarkers)) {
+		addMarkers(vehiclesStatic, lgStaticBusMarkers);
+	}
+	if (map.hasLayer(lgRTBusMarkers)) {
+		addMarkers(vehiclesReal, lgRTBusMarkers);
+	}
+
 	/*
 		addMarkers(vacantJson, true,
 	
@@ -1296,7 +1344,17 @@ async function handleFilterClick() {
 }
 
 handleFilterClick();
-setInterval(handleFilterClick, 15 * 1000)
+const intervalMS = 10*1000;
+
+var intervalId = setInterval(handleFilterClick, intervalMS);
+
+map.on('overlayadd', onOverlayAdd);
+
+function onOverlayAdd(e){
+	clearInterval(intervalId);
+	intervalId = setInterval(handleFilterClick, intervalMS);
+    handleFilterClick();
+}
 
 function handleExportClick() {
 	handleFilterClick();
