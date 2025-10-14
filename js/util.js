@@ -1,5 +1,8 @@
 import { getJson, getMS } from "./utils_helper.js";
 
+const rootfontsize = document.querySelector(":root").style.fontSize;
+console.log("root font size ", rootfontsize)
+
 // touch or mouse?
 let mql = window.matchMedia("(pointer: fine)");
 const pointerFine = mql.matches;
@@ -8,6 +11,7 @@ var map;
 var osm;
 var lgStaticBusMarkers;
 var lgRTBusMarkers;
+var lgRouteInfo;
 
 const LatitudeDefault = 37.8695;
 const LongitudeDefault = -122.2699;
@@ -28,19 +32,23 @@ function createMap() {
 	lgStaticBusMarkers = L.layerGroup();
 	lgRTBusMarkers = L.layerGroup();
 
+	lgRouteInfo = L.layerGroup();
+
 	map = L.map(element, {
-		preferCanvas: true,
+	//	preferCanvas: true,
 		doubleClickZoom: false,
-		layers: [osm,/* lgStaticBusMarkers,*/ lgRTBusMarkers]
+		layers: [osm, lgStaticBusMarkers /*, lgRTBusMarkers */, lgRouteInfo],
+		minZoom:9,
+		maxZoom:18
+
+	
 	});
 
 	// Target's GPS coordinates.
 	var target = L.latLng(LatitudeDefault, LongitudeDefault); //'37.669', '-122.089'); // hayward 37.6697884,-122.089564
 
-
-
 	// Set map's center to target with zoom 14.
-	map.setView(target, 14);
+	map.setView(target, 12);
 
 	// add layer control to map
 	var baseLayers = {
@@ -54,6 +62,11 @@ function createMap() {
 	};
 
 	L.control.layers(null, overlays, { collapsed: false }).addTo(map);
+/*
+	map.on('popupopen', function(e) {
+		var marker = e.popup._source;
+		console.log( marker);
+	});*/
 }
 
 createMap();
@@ -136,10 +149,12 @@ const black = "#000000";
 
 const grey = "#101010";
 
+const yellow = '#FFFF00';
+
 function getOptionsForMarker(veh) {
 	var colorValue;
 	var rad = 14;
-	var opa = 0.8;
+	var opa = 0.85;
 
 	colorValue = w3_highway_red;
 
@@ -151,7 +166,7 @@ function getOptionsForMarker(veh) {
 	}
 
 	if (!pointerFine) {
-		rad *= 1.5;
+		//rad *= 1.5;
 	}
 	var fill = true;
 	if (veh.data == 'schedule') {
@@ -423,7 +438,16 @@ function getShape(shape_id) {
 	return news;
 }
 
-
+function getShapeForTripid(tripid) {
+	const t = mapTripIdToTrip.get(tripid);
+	if (t) {
+		// TODO make more efficient
+		const shp = getShape(t.shape_id);
+		return shp;
+	}
+	console.log("Shape not found for tripid " , tripid);
+	return null;
+}
 
 
 
@@ -756,7 +780,7 @@ function createLegend() {
 
 mapShapeIdToShape.forEach((v, k, unused) => {
 	const coords = makePolyLineData(v);
-	const polyLine = L.polyline(coords, { color: 'black' });
+	const polyLine = L.polyline(coords, { color: grey });
 	polyLine.addTo(map)
 });
 
@@ -816,143 +840,57 @@ function getPointFromeature(feature) {
 }
 
 
-/*	if (!turf.booleanPointInPolygon(tp, downtownTurfPolygon)) {
-					//console.log("Skipping item not in district ", tags)
-					incrementMapKey(histShopData, arrShopKeys[2]);
-					continue;
-				}*/
 
-/*
-function checkGeoFilter(tp) {
 
-	var retval = false;
+function handleMarkerPopupOpen( target) {
 
-	if (checkBerkeley.checked) {
-		if (turf.booleanPointInPolygon(tp, berkeleyTurfPolygon)) {
-			retval = true;
-		}
-	}
+	const tripid = target.tripid;
+	const rt = target.rt;
+
+	// get the trip
+	const trip = mapTripIdToTrip.get(tripid);
+
+
+	// draw the route
+	const shp = trip.shape; // getShapeForTripid(tripid);
+
 	
-	if (checkDowntown.checked) {
-		if (turf.booleanPointInPolygon(tp, downtownTurfPolygon)) {
-			retval = true;
-		}
+
+	const coords =  makePolyLineData(shp);
+	const polyLine = L.polyline(coords, { color: yellow });
+	polyLine.addTo(lgRouteInfo)
+
+
+	// draw the stops
+	const stoptimes = trip.stop_times;
+
+	for (const st of stoptimes) {
+		const stop = getStop(st.stop_id);
+		var marker = L.circleMarker([stop.stop_lat, stop.stop_lon], 
+			{
+				color: black,
+				radius: 3,
+				fill: true,
+				fillOpacity: 0.8
+			}
+			);
+		marker.addTo(lgRouteInfo);
+
+		/*   {
+        "stpid": "50464",
+        "stpnm": "Hesperian Blvd & La Playa Dr",
+        "lat": 37.647028,
+        "lon": -122.106787000001,
+        "geoid": "1866"
+      },*/
+
 	}
-	if (checkNorthside.checked) {
-		if (turf.booleanPointInPolygon(tp, northsideTurfPolygon)) {
-			retval = true;
-		}
-	}
-	if (checkFourth.checked) {
-		if (turf.booleanPointInPolygon(tp, fourthTurfPolygon)) {
-			retval = true;
-		}
-	}
-
-
-
-
-
-	if (checkGilman.checked) {
-		if (turf.booleanPointInPolygon(tp, gilmanTurfPolygon)) {
-			retval = true;
-		}
-	}
-
-	if (checkWestbrae.checked) {
-		if (turf.booleanPointInPolygon(tp, westbraeTurfPolygon)) {
-			retval = true;
-		}
-	}
-
-	if (checkNorthbrae.checked) {
-		if (turf.booleanPointInPolygon(tp, northbraeTurfPolygon)) {
-			retval = true;
-		}
-	}
-
-	if (checkSolano.checked) {
-		if (turf.booleanPointInPolygon(tp, solanoTurfPolygon)) {
-			retval = true;
-		}
-	}
-
-	if (checkNorthshattuck.checked) {
-		if (turf.booleanPointInPolygon(tp, northshattuckTurfPolygon)) {
-			retval = true;
-		}
-	}
-
-
-
-	if (checkUniversity.checked) {
-		if (turf.booleanPointInPolygon(tp, universityTurfPolygon)) {
-			retval = true;
-		}
-	}
-
-	if (checkTelegraph.checked) {
-		if (turf.booleanPointInPolygon(tp, telegraphTurfPolygon)) {
-			retval = true;
-		}
-	}
-
-	if (checkElmwood.checked) {
-		if (turf.booleanPointInPolygon(tp, elmwoodTurfPolygon)) {
-			retval = true;
-		}
-	}
-
-
-	if (checkLorin.checked) {
-		if (turf.booleanPointInPolygon(tp, lorinTurfPolygon)) {
-			retval = true;
-		}
-	}
-	// ADD NEW GEO FILTER
-	if (checkTemescal.checked) {
-		if (turf.booleanPointInPolygon(tp, temescalTurfPolygon)) {
-			retval = true;
-		}
-	}
-
-	// ADD NEW GEO FILTER
-	if (checkValencia.checked) {
-		if (turf.booleanPointInPolygon(tp, valenciaTurfPolygon)) {
-			retval = true;
-		}
-	}
-
-	if (checkSanpabloave.checked) {
-		if (turf.booleanPointInPolygon(tp, sanpabloaveTurfPolygon)) {
-			retval = true;
-		}
-	}
-
-	if (checkUniversityave.checked) {
-		if (turf.booleanPointInPolygon(tp, universityaveTurfPolygon)) {
-			retval = true;
-		}
-	}
-
-	if (checkSacramentoave.checked) {
-		if (turf.booleanPointInPolygon(tp, sacramentoaveTurfPolygon)) {
-			retval = true;
-		}
-	}
-	if (checkMlkway.checked) {
-		if (turf.booleanPointInPolygon(tp, mlkwayTurfPolygon)) {
-			retval = true;
-		}
-	}
-
-
-
-	return retval;
 
 }
 
-*/
+const s1 = getShapeForTripid(9474020);
+const s2 = getShapeForTripid('9474020');
+
 var nCountVacant = 0;
 var nCountShop = 0;
 var nCountLand = 0;
@@ -982,6 +920,10 @@ function addMarkers(vehicles, layerGroup) {
 
 			var marker = L.circleMarker([lat, long], opt);
 
+			// stick on the trip id
+			marker.tripid = parseInt(veh.tripid);
+			marker.rt = veh.rt;
+
 
 			var msg = nodePopup(veh)
 
@@ -996,13 +938,36 @@ function addMarkers(vehicles, layerGroup) {
 			);
 
 
-			if (pointerFine) {
+		//	if (pointerFine) {
 
 				//marker.bindTooltip(msg).openTooltip();// can copy from tooltip!
-				marker.bindPopup(msg).openPopup();
-			} else {
-				marker.bindPopup(msg).openPopup();
-			}
+				/*.on("popupopen", function(event){
+					//this will be fired only for this specific popup of marker1 .
+				});
+				*/
+				//marker.bindPopup(msg);//.openPopup();
+				// add a handler to show the route and stops
+				
+
+
+				marker.bindPopup(msg,  {offset: [-10, -10]}).on("popupopen", function(event){
+					console.log("popup open event ", event.target.rt, event.target.tripid)
+					handleMarkerPopupOpen( event.target);
+
+				});
+		//	} else {
+		//		marker.bindPopup(msg).openPopup();
+		//	}
+
+	
+
+		
+		
+			marker.getPopup().on('remove', function(e) {
+				lgRouteInfo.clearLayers()
+				console.log("popup removed", e.target._content);
+				// remove the layergroup with the shape and stops for this route
+			});
 
 			marker.addTo(layerGroup);
 			markers.push(marker);
@@ -1344,7 +1309,7 @@ async function handleFilterClick() {
 }
 
 handleFilterClick();
-const intervalMS = 10*1000;
+const intervalMS = 100*1000;
 
 var intervalId = setInterval(handleFilterClick, intervalMS);
 
@@ -1654,6 +1619,144 @@ const locations = await pbfToGeojson();
 //const stopTimesJson = await getDataFile(fNameStopTimes);
 
 //getMS("Reading csv files ")
+
+/*	if (!turf.booleanPointInPolygon(tp, downtownTurfPolygon)) {
+					//console.log("Skipping item not in district ", tags)
+					incrementMapKey(histShopData, arrShopKeys[2]);
+					continue;
+				}*/
+
+/*
+function checkGeoFilter(tp) {
+
+	var retval = false;
+
+	if (checkBerkeley.checked) {
+		if (turf.booleanPointInPolygon(tp, berkeleyTurfPolygon)) {
+			retval = true;
+		}
+	}
+	
+	if (checkDowntown.checked) {
+		if (turf.booleanPointInPolygon(tp, downtownTurfPolygon)) {
+			retval = true;
+		}
+	}
+	if (checkNorthside.checked) {
+		if (turf.booleanPointInPolygon(tp, northsideTurfPolygon)) {
+			retval = true;
+		}
+	}
+	if (checkFourth.checked) {
+		if (turf.booleanPointInPolygon(tp, fourthTurfPolygon)) {
+			retval = true;
+		}
+	}
+
+
+
+
+
+	if (checkGilman.checked) {
+		if (turf.booleanPointInPolygon(tp, gilmanTurfPolygon)) {
+			retval = true;
+		}
+	}
+
+	if (checkWestbrae.checked) {
+		if (turf.booleanPointInPolygon(tp, westbraeTurfPolygon)) {
+			retval = true;
+		}
+	}
+
+	if (checkNorthbrae.checked) {
+		if (turf.booleanPointInPolygon(tp, northbraeTurfPolygon)) {
+			retval = true;
+		}
+	}
+
+	if (checkSolano.checked) {
+		if (turf.booleanPointInPolygon(tp, solanoTurfPolygon)) {
+			retval = true;
+		}
+	}
+
+	if (checkNorthshattuck.checked) {
+		if (turf.booleanPointInPolygon(tp, northshattuckTurfPolygon)) {
+			retval = true;
+		}
+	}
+
+
+
+	if (checkUniversity.checked) {
+		if (turf.booleanPointInPolygon(tp, universityTurfPolygon)) {
+			retval = true;
+		}
+	}
+
+	if (checkTelegraph.checked) {
+		if (turf.booleanPointInPolygon(tp, telegraphTurfPolygon)) {
+			retval = true;
+		}
+	}
+
+	if (checkElmwood.checked) {
+		if (turf.booleanPointInPolygon(tp, elmwoodTurfPolygon)) {
+			retval = true;
+		}
+	}
+
+
+	if (checkLorin.checked) {
+		if (turf.booleanPointInPolygon(tp, lorinTurfPolygon)) {
+			retval = true;
+		}
+	}
+	// ADD NEW GEO FILTER
+	if (checkTemescal.checked) {
+		if (turf.booleanPointInPolygon(tp, temescalTurfPolygon)) {
+			retval = true;
+		}
+	}
+
+	// ADD NEW GEO FILTER
+	if (checkValencia.checked) {
+		if (turf.booleanPointInPolygon(tp, valenciaTurfPolygon)) {
+			retval = true;
+		}
+	}
+
+	if (checkSanpabloave.checked) {
+		if (turf.booleanPointInPolygon(tp, sanpabloaveTurfPolygon)) {
+			retval = true;
+		}
+	}
+
+	if (checkUniversityave.checked) {
+		if (turf.booleanPointInPolygon(tp, universityaveTurfPolygon)) {
+			retval = true;
+		}
+	}
+
+	if (checkSacramentoave.checked) {
+		if (turf.booleanPointInPolygon(tp, sacramentoaveTurfPolygon)) {
+			retval = true;
+		}
+	}
+	if (checkMlkway.checked) {
+		if (turf.booleanPointInPolygon(tp, mlkwayTurfPolygon)) {
+			retval = true;
+		}
+	}
+
+
+
+	return retval;
+
+}
+
+*/
 
 
 export {
