@@ -420,7 +420,7 @@ console.log("Trips today length:", tripsToday.length);
 // make a map from tripid to trip
 const mapTripIdToTrip = new Map();
 tripsToday.forEach(t => {
-	mapTripIdToTrip.set(parseInt(t.trip_id), t);
+	mapTripIdToTrip.set(t.trip_id, t);  // FIXed string not int
 });
 
 // make a map to look up by id, note geoid in stops is stop_id in stoptimes
@@ -892,9 +892,7 @@ function handleMarkerPopupOpen( target) {
 const s1 = getShapeForTripid(9474020);
 const s2 = getShapeForTripid('9474020');
 
-var nCountVacant = 0;
-var nCountShop = 0;
-var nCountLand = 0;
+
 
 function addMarkers(vehicles, layerGroup) {
 	//removeAllMakers();
@@ -922,7 +920,7 @@ function addMarkers(vehicles, layerGroup) {
 			var marker = L.circleMarker([lat, long], opt);
 
 			// stick on the trip id
-			marker.tripid = parseInt(veh.tripid);
+			marker.tripid = veh.tripid; // FIXed string not int
 			marker.rt = veh.rt;
 
 
@@ -1148,19 +1146,23 @@ async function getVehiclesACTRT() {
 	const resp = json["bustime-response"];
 	const vehicles = resp.vehicle;
 
+
+	// for unknown reasons the tripid returns int the json is a number, when in general
+	// gtfs trip ids are strings.  Convert it.  Maybe should change from tripid to trip_id ?
 	vehicles.forEach((v) => {
 		v.data = 'actrt';
+		v.tripid = v.tripid.toString();  // fix type to string, even if it is a number type
+
 		const trip = mapTripIdToTrip.get(v.tripid);
 		if (trip) {
 			v.direction = trip.direction_id;
 		} else {
 			v.direction = 'UNKNOWN';
-		}
+		}		
 	}
 	);
 
 	return vehicles;
-
 }
 
 
@@ -1183,10 +1185,7 @@ async function handleFilterClick() {
 	*/
 
 	// reset summary counts 
-	nCountVacant = 0
 
-	nCountShop = 0
-	nCountLand = 0;
 	var vehiclesReal;
 	getMS();
 	if (map.hasLayer(lgRTBusMarkers)) {
