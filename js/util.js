@@ -267,9 +267,10 @@ getMS("Reading jsonfiles")
 
 
 // filter based on service id matching today? TODO
-const gDayToday = lx_ServiceDayStarts.today.weekday; //(new Date()).getDay();  // 0 = sunday 
+// mod 7 to convert from luxon 1-7 to array index 0 - 6
+const gDayToday = lx_ServiceDayStarts.today.weekday % 7; //(new Date()).getDay();  // 0 = sunday 
 
-const gDayYesterday = lx_ServiceDayStarts.yesterday.weekday; //(new Date()).getDay();  // 0 = sunday 
+const gDayYesterday = lx_ServiceDayStarts.yesterday.weekday % 7; //(new Date()).getDay();  // 0 = sunday 
 
 // map service id to array of 7 booleans for Sun .. Sat service
 const mapServiceIdToCalendar = new Map();
