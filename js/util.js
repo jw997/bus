@@ -35,13 +35,13 @@ function createMap() {
 	lgRouteInfo = L.layerGroup();
 
 	map = L.map(element, {
-	//	preferCanvas: true,
+		preferCanvas: true,
 		doubleClickZoom: false,
 		layers: [osm, lgStaticBusMarkers /*, lgRTBusMarkers */, lgRouteInfo],
-		minZoom:9,
-		maxZoom:18
+		minZoom: 9,
+		maxZoom: 18
 
-	
+
 	});
 
 	// Target's GPS coordinates.
@@ -62,14 +62,39 @@ function createMap() {
 	};
 
 	L.control.layers(null, overlays, { collapsed: false }).addTo(map);
-/*
-	map.on('popupopen', function(e) {
-		var marker = e.popup._source;
-		console.log( marker);
-	});*/
+	/*
+		map.on('popupopen', function(e) {
+			var marker = e.popup._source;
+			console.log( marker);
+		});*/
 }
 
 createMap();
+
+// make a circle marker and move it as a test
+/*
+var lat = LatitudeDefault;
+var long = LongitudeDefault;
+
+var marker = L.circleMarker([lat, long]);
+
+marker.addTo(map);
+
+function moveit() {
+	lat += 0.00001;
+
+	const gps = L.latLng(lat, long);
+
+	marker.setLatLng(gps)
+
+	marker.redraw();
+
+}
+
+setInterval(moveit, 500);
+*/
+
+
 //TODO create JSON files with numerical fields install of all strings
 
 // TODO draw data as we get it route shapes , static schedule, rt vehicles?
@@ -90,6 +115,7 @@ function getServiceDayStartTimes(tz) {
 
 	return { today: todayStartTime, yesterday: yesterdayStartTime }
 }
+// TODO get timezone from agency file
 const lx_ServiceDayStarts = getServiceDayStartTimes('US/Pacific');  // used to figure if service is running today and yesteday
 
 //getCurrentTimeInTimezone(null);
@@ -111,7 +137,7 @@ const lx_ServiceDayStarts = getServiceDayStartTimes('US/Pacific');  // used to f
 // summary = document.querySelector('#summary');
 
 //const saveanchor = document.getElementById('saveanchor')
-
+/*
 function getIcon(name) {
 	const icon = new L.Icon({
 		//	iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/' + name,
@@ -134,7 +160,7 @@ const yellowIcon = getIcon('marker-highway-yellow.png');
 const goldIcon = getIcon('marker-highway-brown.png');
 const blueIcon = getIcon('marker-highway-blue.png');
 const violetIcon = getIcon('marker-icon-violet.png');
-
+*/
 const w3_highway_brown = '#633517';
 const w3_highway_red = '#a6001a';
 const w3_highway_orange = '#e06000';
@@ -225,6 +251,7 @@ const TOKEN = '7FACCE4112DE7621321F5E518EBC9CB1'
 
 
 const pathDataACT = 'actransit/';
+//const pathDataACT = 'muni/';
 //const fNameRoutes = pathDataACT + 'routes.json';
 const fNameTrips = pathDataACT + 'trips.json';
 const fNameCalendar = pathDataACT + 'calendar.json';
@@ -300,13 +327,6 @@ function isServiceIdOperatingToday(t) {
 
 	return retObj;
 }
-
-const t37 = isServiceIdOperatingToday({ service_id: "37" });
-const t52 = isServiceIdOperatingToday({ service_id: "52" });
-
-
-
-
 
 
 
@@ -446,7 +466,7 @@ function getShapeForTripid(tripid) {
 		const shp = getShape(t.shape_id);
 		return shp;
 	}
-	console.log("Shape not found for tripid " , tripid);
+	console.log("Shape not found for tripid ", tripid);
 	return null;
 }
 
@@ -573,17 +593,13 @@ function compareHHMMSS(a, b) {
 function addHHMMSStoTs(ts, hhmmss) {
 
 }
-//TODO switch to using UTC timestampes instead of local time strings
 function getStaticVehicles() {
 	const currentTime = Date.now(); //getHHMMSS();
 	const vehicles = [];
 
 	tripsToday.forEach(trip => {
 
-
 		//console.log(element.trip_id)
-
-
 		// TODO handle yesterday
 		const tripStart = lx_ServiceDayStarts.today.ts + trip.start;
 		const tripEnd = lx_ServiceDayStarts.today.ts + trip.end;
@@ -594,11 +610,8 @@ function getStaticVehicles() {
 				//console.log("Inluding trip ", element.trip_id)
 				const veh = getVehicleForTrip(trip, Date.now())
 				vehicles.push(veh)
-
 			}
-
 		}
-
 	});
 
 	return vehicles
@@ -695,7 +708,7 @@ const popupFields = [
 	//	"hdg",
 	//	"pid",
 	//	"pdist",
-//	"dly",
+	//	"dly",
 	"spd",
 	//	"tablockid",
 	//	"tatripid",
@@ -806,7 +819,12 @@ const markers = [];
 
 function removeAllMakers() {
 	lgRTBusMarkers.clearLayers();
-	lgStaticBusMarkers.clearLayers();
+	//	lgStaticBusMarkers.clearLayers();
+
+
+	lgStaticBusMarkers.eachLayer(function (layer) {
+		//layer.remove();
+	});
 	/*
 	for (const m of markers) {
 		m.remove();
@@ -843,7 +861,7 @@ function getPointFromeature(feature) {
 
 
 
-function handleMarkerPopupOpen( target) {
+function handleMarkerPopupOpen(target) {
 
 	const tripid = target.tripid;
 	const rt = target.rt;
@@ -855,9 +873,7 @@ function handleMarkerPopupOpen( target) {
 	// draw the route
 	const shp = trip.shape; // getShapeForTripid(tripid);
 
-	
-
-	const coords =  makePolyLineData(shp);
+	const coords = makePolyLineData(shp);
 	const polyLine = L.polyline(coords, { color: yellow });
 	polyLine.addTo(lgRouteInfo)
 
@@ -867,34 +883,39 @@ function handleMarkerPopupOpen( target) {
 
 	for (const st of stoptimes) {
 		const stop = getStop(st.stop_id);
-		var marker = L.circleMarker([stop.stop_lat, stop.stop_lon], 
+		var marker = L.circleMarker([stop.stop_lat, stop.stop_lon],
 			{
 				color: black,
 				radius: 3,
 				fill: true,
 				fillOpacity: 0.8
 			}
-			);
+		);
 		marker.addTo(lgRouteInfo);
 
 		/*   {
-        "stpid": "50464",
-        "stpnm": "Hesperian Blvd & La Playa Dr",
-        "lat": 37.647028,
-        "lon": -122.106787000001,
-        "geoid": "1866"
-      },*/
+		"stpid": "50464",
+		"stpnm": "Hesperian Blvd & La Playa Dr",
+		"lat": 37.647028,
+		"lon": -122.106787000001,
+		"geoid": "1866"
+	  },*/
 
 	}
+/*
+	mapTripIdToMarkerStatic.forEach(function (v,k,m) {
+		if (v.rt != rt) {
+			v.setRadius(1);
+		}
+	});*/
+
 
 }
 
 const s1 = getShapeForTripid(9474020);
 const s2 = getShapeForTripid('9474020');
 
-
-
-function addMarkers(vehicles, layerGroup) {
+function addMarkers(vehicles, mapTripIdToMarker, layerGroup) {
 	//removeAllMakers();
 	//const markersAtLocation = new Map();
 	// add collisions to map
@@ -903,82 +924,96 @@ function addMarkers(vehicles, layerGroup) {
 
 	//var arrMappedOsmItems = [];
 
+	// make a map of the new vehicles
+	const latest = new Map()
+	vehicles.forEach(function (v) {
+		latest.set(v.tripid, v);
+	});
+
+	// remove markers that are no longer in the vehicle trip list
+	mapTripIdToMarkerStatic.forEach( function (v,k,m) {
+		if (!latest.has( k)) {
+			console.log("Removing marker for tripid ", v.tripid)
+			v.remove();
+	        mapTripIdToMarkerStatic.delete(k)
+		}
+
+	});
+
+
 	for (const veh of vehicles) {
-
-
-
 		const lat = veh.lat
 		const long = veh.lon
 
-		if (lat && long) {
-			const loc = [lat, long];
-			//const tp = turf.point([long, lat]);
-
-
-			var opt = getOptionsForMarker(veh);
-
-			var marker = L.circleMarker([lat, long], opt);
-
-			// stick on the trip id
-			marker.tripid = veh.tripid; // FIXed string not int
-			marker.rt = veh.rt;
-
-
-			var msg = nodePopup(veh)
-
-			const ttMsg = toolTipMsg(veh);
-
-			marker.bindTooltip(ttMsg,
-				{
-					permanent: true,
-					direction: 'center',
-					className: 'bus-tooltip'
-				}
-			);
-
-
-		//	if (pointerFine) {
-
-				//marker.bindTooltip(msg).openTooltip();// can copy from tooltip!
-				/*.on("popupopen", function(event){
-					//this will be fired only for this specific popup of marker1 .
-				});
-				*/
-				//marker.bindPopup(msg);//.openPopup();
-				// add a handler to show the route and stops
-				
-
-
-				marker.bindPopup(msg,  {offset: [-10, -10]}).on("popupopen", function(event){
-					console.log("popup open event ", event.target.rt, event.target.tripid)
-					handleMarkerPopupOpen( event.target);
-
-				});
-		//	} else {
-		//		marker.bindPopup(msg).openPopup();
-		//	}
-
-	
-
-		
-		
-			marker.getPopup().on('remove', function(e) {
-				lgRouteInfo.clearLayers()
-				console.log("popup removed", e.target._content);
-				// remove the layergroup with the shape and stops for this route
-			});
-
-			marker.addTo(layerGroup);
-			markers.push(marker);
-			markerCount++;
-		} else {
-			//histMissingGPSData.set(attr.Year, histMissingGPSData.get(attr.Year) + 1);
-			//incrementMapKey(histMissingGPSData, attr.Year);
-			//	incrementMapKey(histShopData, arrShopKeys[2]);
+		if (!(lat && long)) {
 			skipped++;
+			continue;
 		}
+
+		// is this a continuing trip
+		const continuingMarker = mapTripIdToMarker.get(veh.tripid);
+		if (continuingMarker) {
+			// move it
+
+			const gps = L.latLng(lat, long);
+			
+			continuingMarker.setLatLng(gps); //[lat, long]);
+			continuingMarker.redraw();
+			continue;
+		}
+
+
+		// new trip starting
+
+		const loc = [lat, long];
+		//const tp = turf.point([long, lat]);
+
+
+		var opt = getOptionsForMarker(veh);
+
+		var marker = L.circleMarker([lat, long], opt);
+
+		// stick on the trip id
+		marker.tripid = veh.tripid; // FIXed string not int
+		marker.rt = veh.rt;
+		console.log('Adding marker for trip ', marker.tripid)
+
+		var msg = nodePopup(veh)
+		const ttMsg = toolTipMsg(veh);
+
+		marker.bindTooltip(ttMsg,
+			{
+				permanent: true,
+				direction: 'center',
+				className: 'bus-tooltip'
+			}
+		);
+
+		marker.bindPopup(msg, { offset: [-10, -10] }).on("popupopen", function (event) {
+			console.log("popup open event ", event.target.rt, event.target.tripid)
+			handleMarkerPopupOpen(event.target);
+
+		});
+
+		marker.getPopup().on('remove', function (e) {
+			lgRouteInfo.clearLayers()
+			console.log("popup removed", e.target._content);
+			// remove the layergroup with the shape and stops for this route
+		});
+
+		marker.addTo(layerGroup);
+		markers.push(marker);
+		mapTripIdToMarker.set(marker.tripid, marker);
+		markerCount++;
 	}
-//	console.log('Skipped', skipped);
+	/*else {
+		//histMissingGPSData.set(attr.Year, histMissingGPSData.get(attr.Year) + 1);
+		//incrementMapKey(histMissingGPSData, attr.Year);
+		//	incrementMapKey(histShopData, arrShopKeys[2]);
+		skipped++;
+	}*/
+
+	//	console.log('Skipped', skipped);
 	//console.log('Plotted', plotted);
 	console.log("markerCount ", markerCount)
 	/*
@@ -991,10 +1026,10 @@ function addMarkers(vehicles, layerGroup) {
 
 	// set array for download
 	//const json = JSON.stringify(arrMappedOsmItems, null, 2);
-//	//const inputblob = new Blob([json], {
-//		type: "application/json",
-//	});
-//	const u = URL.createObjectURL(inputblob);
+	//	//const inputblob = new Blob([json], {
+	//		type: "application/json",
+	//	});
+	//	const u = URL.createObjectURL(inputblob);
 	//saveanchor.href = u;
 
 }
@@ -1158,13 +1193,15 @@ async function getVehiclesACTRT() {
 			v.direction = trip.direction_id;
 		} else {
 			v.direction = 'UNKNOWN';
-		}		
+		}
 	}
 	);
 
 	return vehicles;
 }
 
+const mapTripIdToMarkerStatic = new Map()
+const mapTripIdToMarkersRealTime = new Map()
 
 async function handleFilterClick() {
 	console.log('filter click')
@@ -1192,11 +1229,13 @@ async function handleFilterClick() {
 		vehiclesReal = await getVehiclesACTRT();
 	}
 	getMS("act real time");
-	var vehiclesStatic
+	var vehiclesStatic;
 	if (map.hasLayer(lgStaticBusMarkers)) {
 		vehiclesStatic = getStaticVehicles();
 	}
 	getMS("static schedule");
+
+
 	/*
 		const vehicles511 = await get511ActVehicles();
 	getMS("511")
@@ -1211,6 +1250,7 @@ async function handleFilterClick() {
 
 	//const vehicles =  vehicles511;// gtfsVehicles;
 	removeAllMakers();
+	getMS('remove old markers')
 	// get delays
 	/*
 	for (const veh of vehicles) {
@@ -1219,12 +1259,22 @@ async function handleFilterClick() {
 
 
 	if (map.hasLayer(lgStaticBusMarkers)) {
-		addMarkers(vehiclesStatic, lgStaticBusMarkers);
-	}
-	if (map.hasLayer(lgRTBusMarkers)) {
-		addMarkers(vehiclesReal, lgRTBusMarkers);
-	}
+		// check vehicles by trip id against the map of continuing trips  mapTripIdToMarker
 
+		// vehicles that are NEW must be added
+
+		// vehicle that are continuing must be moved
+
+		// vehicles that are in mapTripIdToMarker but not in the latest vehicle list much be removed
+
+
+		addMarkers(vehiclesStatic, mapTripIdToMarkerStatic, map /* setlatlng / redraw doesn't work for layergorups lgStaticBusMarkers*/);
+	}
+	getMS('add static markers')
+	if (map.hasLayer(lgRTBusMarkers)) {
+		addMarkers(vehiclesReal, mapTripIdToMarkersRealTime, map /*lgRTBusMarkers*/);
+	}
+	getMS('add real time markers')
 	/*
 		addMarkers(vacantJson, true,
 	
@@ -1309,17 +1359,49 @@ async function handleFilterClick() {
 }
 
 handleFilterClick();
-const intervalMS = 100*1000;
+const intervalMS = 15 * 1000;
 
 var intervalId = setInterval(handleFilterClick, intervalMS);
 
 map.on('overlayadd', onOverlayAdd);
 
-function onOverlayAdd(e){
+function onOverlayAdd(e) {
 	clearInterval(intervalId);
 	intervalId = setInterval(handleFilterClick, intervalMS);
-    handleFilterClick();
+	handleFilterClick();
 }
+map.on('overlayadd', onOverlayAdd);
+
+
+
+function onOverlayRemove(e) {
+	getMS();
+	console.log('onoverlayremove')
+	if (e.name == 'Schedule') {
+		console.log('removing', e.target);
+		mapTripIdToMarkerStatic.values().forEach( function (m) {
+			m.remove();
+		})
+		mapTripIdToMarkerStatic.clear();
+
+	}
+
+	if (e.name == 'Realtime') {
+		console.log('removing', e.target);
+		mapTripIdToMarkersRealTime.values().forEach( function (m) {
+			m.remove();
+		})
+		mapTripIdToMarkersRealTime.clear();
+
+	}
+
+	getMS("removed layer markers")
+	clearInterval(intervalId);
+	intervalId = setInterval(handleFilterClick, intervalMS);
+	handleFilterClick();
+}
+
+map.on('overlayremove', onOverlayRemove);
 
 function handleExportClick() {
 	handleFilterClick();
@@ -1760,7 +1842,7 @@ function checkGeoFilter(tp) {
 
 
 export {
-	greenIcon, goldIcon, redIcon,
+	//greenIcon, goldIcon, redIcon,
 
 	map, handleFilterClick
 };
