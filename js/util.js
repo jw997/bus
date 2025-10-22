@@ -698,7 +698,7 @@ selectData.addEventListener("change", async (event) => {
 const popupFields = [
 	"rt",
 	"des",
-	"direction",
+//	"direction",
 	"vid",
 	//	"rtpidatafeed",
 	"bustime",
@@ -720,8 +720,8 @@ const popupFields = [
 	//	"blk",
 	"tripid",
 	//	"tripdyn"
-	'delay',
-	'data'
+//'delay',
+//'data'
 
 ];
 function toolTipMsg(veh) {
@@ -730,7 +730,7 @@ function toolTipMsg(veh) {
 }
 function nodePopup(veh) {
 	var msg = "";
-
+/*
 	for (const k of popupFields) {
 		const v = veh[k];
 		if (!(null == v)) {
@@ -741,15 +741,29 @@ function nodePopup(veh) {
 		msg = veh;
 		console.log("missed popup ", msg);
 	}
+*/
+	const rt = veh.rt;
+	const des = veh.des;
+	const vid = veh.vid;
+	const tid = veh.tripid;
+
+	msg = '' + rt + ' ' + des + '<br/>';
+	
+	if (vid != 'static schedule') {
+		msg += 'bus ' + vid + ' ';
+
+	}
+	msg += 'trip ' + tid + '<br/>'
+
 	return msg;
 }
-
-
+/*
+var legend;
 
 function createLegend() {
-	const legend = L.control.Legend({
-		position: "bottomleft",
-		title: 'Open street map commercial land usage',
+	 legend = L.control.Legend({
+		position: "bottomright",
+		//title: 'Open street map commercial land usage',
 		collapsed: false,
 		symbolWidth: 24,
 		opacity: 0.8,
@@ -785,7 +799,7 @@ function createLegend() {
 		.addTo(map);
 }
 
-
+*/
 
 
 // add route 60 to map
@@ -803,8 +817,10 @@ mapShapeIdToShape.forEach((v, k, unused) => {
 var polyline = L.polyline(polyLineBart, { color: 'red' }).addTo(map);
 
 if (pointerFine) { // skip the legend for the mobile case.  maybe make a smaller legend?
-	//	createLegend();
+		//createLegend();
 }
+
+//createLegend();
 
 const resizeObserver = new ResizeObserver(() => {
 	//console.log("resize observer fired");
