@@ -1,7 +1,34 @@
-import { getJson, getMS } from "./utils_helper.js";
+import { getJson, getMS} from "./utils_helper.js";
 
 const rootfontsize = document.querySelector(":root").style.fontSize;
 console.log("root font size ", rootfontsize)
+
+const ROUTES = 'ROUTES';
+const routeFavorites = localStorage.getItem(ROUTES) ?? '';
+
+function saveFavorites(newVal) {
+	
+	localStorage.setItem(ROUTES, newVal);
+
+
+}
+
+function getFavorites() {
+	const savedVal =  localStorage.getItem(ROUTES);
+	if (savedVal) {
+		return savedVal
+	}
+	return  JSON.stringify([]);
+}
+
+function say( something) {
+	let utterance = new SpeechSynthesisUtterance(something);
+    speechSynthesis.speak(utterance);
+}
+let utterance = new SpeechSynthesisUtterance("Hello world!");
+speechSynthesis.speak(utterance);
+
+
 
 // touch or mouse?
 let mql = window.matchMedia("(pointer: fine)");
@@ -13,10 +40,15 @@ var lgStaticBusMarkers;
 var lgRTBusMarkers;
 var lgRouteInfo;
 
+var lgFake1 = L.layerGroup();
+var lgFake2 = L.layerGroup();
+
 const LatitudeDefault = 37.8695;
 const LongitudeDefault = -122.2699;
 
 //setTimeout(function(){ map.invalidateSize()}, 500);
+
+var ctrlRouteFilter;
 
 function createMap() {
 	// Where you want to render the map.
@@ -61,15 +93,66 @@ function createMap() {
 		"Realtime": lgRTBusMarkers
 	};
 
-	L.control.layers(null, overlays, { collapsed: false }).addTo(map);
+	L.control.layers(null, overlays, { collapsed: false, position: 'topright' }).addTo(map);
 	/*
 		map.on('popupopen', function(e) {
 			var marker = e.popup._source;
 			console.log( marker);
 		});*/
+
+	var fakeBaseLayers = {
+		"show all routes": lgFake1,
+		"selected routes only": lgFake2
+	}
+	ctrlRouteFilter = L.control.layers(fakeBaseLayers, null, { collapsed: false, position: 'bottomright' })
+	ctrlRouteFilter.addTo(map);
+
 }
 
 createMap();
+
+map.on('baselayerchange', function (newBaseLayer) {
+	console.log("Base layer changed to: ", newBaseLayer.name);
+
+	if (newBaseLayer.name == 'show all routes') {
+		hideAllMarkers(null, false, mapTripIdToMarkerStatic)
+		hideAllMarkers(null, false, mapTripIdToMarkersRealTime)
+	}
+
+	if (newBaseLayer.name == 'selected routes only') {
+	//	hideAllMarkers(new Set(["18", "60", "F", "88", "52"]), true, mapTripIdToMarkerStatic)
+		hideAllMarkers(setFilterRoutes, true, mapTripIdToMarkerStatic)
+		hideAllMarkers(setFilterRoutes, true, mapTripIdToMarkersRealTime)
+	}
+	// You can perform actions based on the new base layer here
+});
+
+
+
+
+L.Control.Watermark = L.Control.extend({
+	onAdd: function (map) {
+		var img = L.DomUtil.create('button');
+
+		// img.src = '../../docs/images/logo.png';
+		img.style.width = '100px';
+		img.style.height = '50px';
+
+
+		return img;
+	},
+
+	onRemove: function (map) {
+		// Nothing to do here
+	}
+});
+
+L.control.watermark = function (opts) {
+	return new L.Control.Watermark(opts);
+}
+
+//L.control.watermark({ position: 'bottomright' }).addTo(map);
+
 
 // make a circle marker and move it as a test
 /*
@@ -248,16 +331,19 @@ function HHMMSSToMs(hhcmmcss) {
 const TOKEN = '7FACCE4112DE7621321F5E518EBC9CB1'
 
 
+//const pathAgency = 'soundtransit/';
+//const pathAgency = 'king/';
+//const pathAgency = 'bart/';
 
-
-const pathDataACT = 'actransit/';
+const pathAgency = 'actransit/';
 //const pathDataACT = 'muni/';
-//const fNameRoutes = pathDataACT + 'routes.json';
-const fNameTrips = pathDataACT + 'trips.json';
-const fNameCalendar = pathDataACT + 'calendar.json';
-const fNameStops = pathDataACT + 'stops.json';
-const fNameStopTimes = pathDataACT + 'stop_times.json';
-const fNameShapes = pathDataACT + 'shapes.json';
+const fNameRoutes = pathAgency + 'routes.json';  // need for BART routes short name i.e. Red line vs numerical route
+const fNameTrips = pathAgency + 'trips.json';
+const fNameCalendar = pathAgency + 'calendar.json';
+const fNameCalendarDates = pathAgency + 'calendar_dates.json';  // schedule excpetions!
+const fNameStops = pathAgency + 'stops.json';
+const fNameStopTimes = pathAgency + 'stop_times.json';
+const fNameShapes = pathAgency + 'shapes.json';
 
 const pathDataBART = 'bart/';
 const fNameShapesBART = pathDataBART + "shapes.json";
@@ -279,18 +365,53 @@ async function getShapes() {
 	const retval = await getJson(file);
 	return retval;
 }*/
-getMS();
+
+const routesJson = await getDataFile(fNameRoutes);
 const shapesJson = await getDataFile(fNameShapes);
 
 const tripsJson = await getDataFile(fNameTrips);
 
 const calendarJson = await getDataFile(fNameCalendar);
+const calendarDatesJson = await getDataFile(fNameCalendarDates);
 const stopsJson = await getDataFile(fNameStops);
 const stopTimesJson = await getDataFile(fNameStopTimes);
 
 //const fNameStopTimes = pathDataACT + 'stop_times.txt';
 
 getMS("Reading jsonfiles")
+
+const mapRouteIdToRoute = new Map();
+routesJson.forEach( rt => {
+	mapRouteIdToRoute.set(rt.route_id, rt);
+});
+
+function getRouteShortName( route_id) {
+	const route = mapRouteIdToRoute.get(route_id);
+	return route.route_short_name;
+}
+
+function getYYYYMMDD(lxDay) {
+	const ZERO = '0'; const COLON = ':';
+
+	const s = lxDay.year.toString() + lxDay.month.toString().padStart(2, ZERO) + lxDay.day.toString().padStart(2, ZERO)
+	//const s = ('' + n.getHours()).padStart(2, ZERO) + COLON + ('' + n.getMinutes()).padStart(2, ZERO) + COLON + ('' + n.getSeconds()).padStart(2, ZERO);
+	return s;
+}
+
+const mapServiceIdToExceptionYesterday = new Map();
+const mapServiceIdToExceptionToday = new Map(); // todo handle midngiht rollover to next day
+
+const todayStr = getYYYYMMDD(lx_ServiceDayStarts.today)
+const yesterdayStr = getYYYYMMDD(lx_ServiceDayStarts.yesterday)
+calendarDatesJson.forEach(exc => {
+	if (exc.date == todayStr) {
+		mapServiceIdToExceptionToday.set(exc.service_id, exc.exception_type)
+	}
+	if (exc.date == yesterdayStr) {
+		mapServiceIdToExceptionYesterday.set(exc.service_id, exc.exception_type)
+	}
+});
+
 
 
 // filter based on service id matching today? TODO
@@ -304,12 +425,46 @@ const mapServiceIdToCalendar = new Map();
 
 // figure out which service schedules were operating yesterday and today
 calendarJson.forEach(cal => {
+
+	const start = cal.start_date;
+	const end = cal.end_date;
+
+	const todayRangeOk =  (start <= todayStr && todayStr <= end);
+	const yesterdayRangeOk = (start <= yesterdayStr && yesterdayStr <= end);
+
+	
+
+
 	const days = [cal.sunday, cal.monday, cal.tuesday, cal.wednesday, cal.thursday, cal.friday, cal.saturday];
-	cal.today = (parseInt(days[gDayToday]) != 0);  // "0" or "1"
-	cal.yesterday = (parseInt(days[gDayYesterday]) != 0);
+	cal.today = todayRangeOk && (parseInt(days[gDayToday]) != 0);  // "0" or "1"
+	cal.yesterday = yesterdayRangeOk && (parseInt(days[gDayYesterday]) != 0);
 	//console.log("service id ", cal.service_id, ' today ' , cal.today);
 	mapServiceIdToCalendar.set(cal.service_id, cal)
+
+	// check for excpetions from calendar_dates 
+	const todayException = mapServiceIdToExceptionToday.get(cal.service_id);
+	if (todayException == "2") {
+		cal.today = false
+	}
+	if (todayException == "1") {
+		cal.today = true
+	}
+
+	const yesterdayException = mapServiceIdToExceptionYesterday.get(cal.service_id);
+	if (yesterdayException == "2") {
+		cal.yesterday = false
+	}
+	if (yesterdayException == "1") {
+		cal.yesterday = true
+	}
+
+
 });
+
+
+
+
+
 
 
 // TODAY include strips from yesterday that might still be running .i.e endtime hh >= 24
@@ -318,6 +473,7 @@ function isServiceIdOperatingToday(t) {
 
 	if (null == cal) {
 		console.log("service id not found", t.service_id);
+		return {today:false, yesterday:false};
 	}
 	const retObj = {
 		today: cal.today,
@@ -396,10 +552,6 @@ function getTimesForTrip(trip) {
 function bTripsPredicate(t) {
 	const now = Date.now();
 	const whenObj = isServiceIdOperatingToday(t);
-
-	if (t.trip_id == 200070 || t.trip_id == '200070') {
-		console.log("break 200070");
-	}
 
 	getTimesForTrip(t);
 
@@ -552,11 +704,18 @@ function getVehicleForTrip(trip, currentTime) {
 		}
 		thisStopTime = st;
 	}
+
 	// get lat lng for st
 	const st = getStop(thisStopTime.stop_id);
 
-	//const veh = makeVehicle("Vehicle for trip " + trip.trip_id, st.stop_lat, st.stop_lon);
-
+    // if we are at the last stop in the trip, then just return that gps coord
+	if (! nextStopTime) {
+		console.log("At last stop in run");
+		const veh = makeVehicle(trip, st.stop_lat, st.stop_lon );
+		return veh;
+	}
+	
+	//There is a next stop, so interpolate a position between 2 stops based on time
 	const intgps = interpolateGPS(trip, thisStopTime, nextStopTime, currentTime);
 	const veh2 = makeVehicle(trip, intgps.lat, intgps.lon);
 
@@ -698,7 +857,7 @@ selectData.addEventListener("change", async (event) => {
 const popupFields = [
 	"rt",
 	"des",
-//	"direction",
+	//	"direction",
 	"vid",
 	//	"rtpidatafeed",
 	"bustime",
@@ -720,35 +879,37 @@ const popupFields = [
 	//	"blk",
 	"tripid",
 	//	"tripdyn"
-//'delay',
-//'data'
+	//'delay',
+	//'data'
 
 ];
 function toolTipMsg(veh) {
-	const msg = '' + veh.rt;
+	//const msg = '' + veh.rt;
+	const msg = getRouteShortName(veh.rt)
+
 	return msg;
 }
 function nodePopup(veh) {
 	var msg = "";
-/*
-	for (const k of popupFields) {
-		const v = veh[k];
-		if (!(null == v)) {
-			msg += (k + ': ' + v + '<br>');
+	/*
+		for (const k of popupFields) {
+			const v = veh[k];
+			if (!(null == v)) {
+				msg += (k + ': ' + v + '<br>');
+			}
 		}
-	}
-	if (msg == '') {
-		msg = veh;
-		console.log("missed popup ", msg);
-	}
-*/
+		if (msg == '') {
+			msg = veh;
+			console.log("missed popup ", msg);
+		}
+	*/
 	const rt = veh.rt;
 	const des = veh.des;
 	const vid = veh.vid;
 	const tid = veh.tripid;
 
 	msg = '' + rt + ' ' + des + '<br/>';
-	
+
 	if (vid != 'static schedule') {
 		msg += 'bus ' + vid + ' ';
 
@@ -817,7 +978,7 @@ mapShapeIdToShape.forEach((v, k, unused) => {
 var polyline = L.polyline(polyLineBart, { color: 'red' }).addTo(map);
 
 if (pointerFine) { // skip the legend for the mobile case.  maybe make a smaller legend?
-		//createLegend();
+	//createLegend();
 }
 
 //createLegend();
@@ -875,12 +1036,30 @@ function getPointFromeature(feature) {
 }
 
 
+const setFilterRoutes = new Set();
+const oldRts = JSON.parse(getFavorites());
+for (const r of oldRts) {
+	setFilterRoutes.add(r)
+}
+
+
+//JSON.stringify(setFilterRoutes)
 
 
 function handleMarkerPopupOpen(target) {
 
 	const tripid = target.tripid;
 	const rt = target.rt;
+
+	// add rt to layers
+	const fakert = L.layerGroup();
+
+	//ctrlRouteFilter.addOverlay(fakert, rt);
+
+	setFilterRoutes.add(rt)
+
+	JSON.stringify(setFilterRoutes)
+	saveFavorites( JSON.stringify([...setFilterRoutes]));
 
 	// get the trip
 	const trip = mapTripIdToTrip.get(tripid);
@@ -918,14 +1097,30 @@ function handleMarkerPopupOpen(target) {
 	  },*/
 
 	}
-/*
-	mapTripIdToMarkerStatic.forEach(function (v,k,m) {
-		if (v.rt != rt) {
-			v.setRadius(1);
+	/*
+		mapTripIdToMarkerStatic.forEach(function (v,k,m) {
+			if (v.rt != rt) {
+				v.setRadius(1);
+			}
+		});*/
+
+	say( 'bus ' + rt + '. To ' + trip.trip_headsign);
+}
+
+
+function hideAllMarkers(pattern, bFilterMarkers, mapTripIdToMarker) { // pattern is Set of rts [18, 72L, 880]
+	mapTripIdToMarker.forEach(function (v, k, m) {
+
+		if (bFilterMarkers && !pattern.has(v.rt)) {
+			v.setRadius(0)
+			v.closeTooltip();
+			//v.setOpacity(0.1);
+		} else {
+			v.setRadius(10)
+			v.openTooltip();
 		}
-	});*/
 
-
+	});
 }
 
 const s1 = getShapeForTripid(9474020);
@@ -947,11 +1142,11 @@ function addMarkers(vehicles, mapTripIdToMarker, layerGroup) {
 	});
 
 	// remove markers that are no longer in the vehicle trip list
-	mapTripIdToMarkerStatic.forEach( function (v,k,m) {
-		if (!latest.has( k)) {
+	mapTripIdToMarkerStatic.forEach(function (v, k, m) {
+		if (!latest.has(k)) {
 			console.log("Removing marker for tripid ", v.tripid)
 			v.remove();
-	        mapTripIdToMarkerStatic.delete(k)
+			mapTripIdToMarkerStatic.delete(k)
 		}
 
 	});
@@ -972,7 +1167,7 @@ function addMarkers(vehicles, mapTripIdToMarker, layerGroup) {
 			// move it
 
 			const gps = L.latLng(lat, long);
-			
+
 			continuingMarker.setLatLng(gps); //[lat, long]);
 			continuingMarker.redraw();
 			continue;
@@ -1395,7 +1590,7 @@ function onOverlayRemove(e) {
 	console.log('onoverlayremove')
 	if (e.name == 'Schedule') {
 		console.log('removing', e.target);
-		mapTripIdToMarkerStatic.values().forEach( function (m) {
+		mapTripIdToMarkerStatic.values().forEach(function (m) {
 			m.remove();
 		})
 		mapTripIdToMarkerStatic.clear();
@@ -1404,7 +1599,7 @@ function onOverlayRemove(e) {
 
 	if (e.name == 'Realtime') {
 		console.log('removing', e.target);
-		mapTripIdToMarkersRealTime.values().forEach( function (m) {
+		mapTripIdToMarkersRealTime.values().forEach(function (m) {
 			m.remove();
 		})
 		mapTripIdToMarkersRealTime.clear();
