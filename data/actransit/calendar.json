@@ -1,18 +1,6 @@
 [
   {
     "service_id": "1",
-    "monday": "0",
-    "tuesday": "1",
-    "wednesday": "0",
-    "thursday": "1",
-    "friday": "1",
-    "saturday": "0",
-    "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
-  },
-  {
-    "service_id": "2",
     "monday": "1",
     "tuesday": "1",
     "wednesday": "1",
@@ -20,8 +8,20 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "2",
+    "monday": "1",
+    "tuesday": "1",
+    "wednesday": "0",
+    "thursday": "1",
+    "friday": "1",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "3",
@@ -32,35 +32,23 @@
     "friday": "0",
     "saturday": "0",
     "sunday": "1",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "4",
-    "monday": "1",
-    "tuesday": "1",
-    "wednesday": "1",
-    "thursday": "1",
+    "monday": "0",
+    "tuesday": "0",
+    "wednesday": "0",
+    "thursday": "0",
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "5",
-    "monday": "1",
-    "tuesday": "1",
-    "wednesday": "1",
-    "thursday": "1",
-    "friday": "1",
-    "saturday": "0",
-    "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
-  },
-  {
-    "service_id": "6",
     "monday": "1",
     "tuesday": "1",
     "wednesday": "0",
@@ -68,8 +56,20 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "6",
+    "monday": "1",
+    "tuesday": "1",
+    "wednesday": "1",
+    "thursday": "1",
+    "friday": "1",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "7",
@@ -80,8 +80,8 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "8",
@@ -92,23 +92,11 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "9",
-    "monday": "1",
-    "tuesday": "1",
-    "wednesday": "1",
-    "thursday": "1",
-    "friday": "1",
-    "saturday": "0",
-    "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
-  },
-  {
-    "service_id": "10",
     "monday": "1",
     "tuesday": "1",
     "wednesday": "0",
@@ -116,35 +104,35 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "10",
+    "monday": "1",
+    "tuesday": "1",
+    "wednesday": "1",
+    "thursday": "1",
+    "friday": "1",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "11",
     "monday": "0",
     "tuesday": "0",
     "wednesday": "1",
-    "thursday": "0",
+    "thursday": "1",
     "friday": "0",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "12",
-    "monday": "1",
-    "tuesday": "1",
-    "wednesday": "1",
-    "thursday": "1",
-    "friday": "1",
-    "saturday": "0",
-    "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
-  },
-  {
-    "service_id": "13",
     "monday": "0",
     "tuesday": "0",
     "wednesday": "1",
@@ -152,11 +140,35 @@
     "friday": "0",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "13",
+    "monday": "1",
+    "tuesday": "1",
+    "wednesday": "1",
+    "thursday": "1",
+    "friday": "0",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "14",
+    "monday": "0",
+    "tuesday": "1",
+    "wednesday": "0",
+    "thursday": "0",
+    "friday": "0",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "15",
     "monday": "1",
     "tuesday": "1",
     "wednesday": "1",
@@ -164,20 +176,8 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
-  },
-  {
-    "service_id": "15",
-    "monday": "1",
-    "tuesday": "1",
-    "wednesday": "0",
-    "thursday": "1",
-    "friday": "1",
-    "saturday": "0",
-    "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "16",
@@ -188,8 +188,8 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "17",
@@ -200,23 +200,11 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "18",
-    "monday": "0",
-    "tuesday": "0",
-    "wednesday": "0",
-    "thursday": "0",
-    "friday": "1",
-    "saturday": "0",
-    "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
-  },
-  {
-    "service_id": "19",
     "monday": "1",
     "tuesday": "1",
     "wednesday": "1",
@@ -224,128 +212,140 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "19",
+    "monday": "0",
+    "tuesday": "0",
+    "wednesday": "1",
+    "thursday": "0",
+    "friday": "0",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "20",
-    "monday": "0",
-    "tuesday": "0",
-    "wednesday": "0",
+    "monday": "1",
+    "tuesday": "1",
+    "wednesday": "1",
     "thursday": "1",
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "21",
     "monday": "0",
     "tuesday": "0",
-    "wednesday": "1",
-    "thursday": "1",
-    "friday": "0",
-    "saturday": "0",
-    "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
-  },
-  {
-    "service_id": "22",
-    "monday": "1",
-    "tuesday": "1",
-    "wednesday": "1",
-    "thursday": "1",
+    "wednesday": "0",
+    "thursday": "0",
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "22",
+    "monday": "0",
+    "tuesday": "0",
+    "wednesday": "0",
+    "thursday": "0",
+    "friday": "1",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "23",
     "monday": "1",
-    "tuesday": "0",
+    "tuesday": "1",
+    "wednesday": "1",
+    "thursday": "1",
+    "friday": "0",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "24",
+    "monday": "1",
+    "tuesday": "1",
+    "wednesday": "0",
+    "thursday": "1",
+    "friday": "0",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "25",
+    "monday": "1",
+    "tuesday": "1",
+    "wednesday": "1",
+    "thursday": "1",
+    "friday": "1",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "26",
+    "monday": "1",
+    "tuesday": "1",
+    "wednesday": "1",
+    "thursday": "1",
+    "friday": "0",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "27",
+    "monday": "1",
+    "tuesday": "1",
     "wednesday": "0",
     "thursday": "1",
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
-  },
-  {
-    "service_id": "24",
-    "monday": "0",
-    "tuesday": "0",
-    "wednesday": "1",
-    "thursday": "0",
-    "friday": "0",
-    "saturday": "0",
-    "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
-  },
-  {
-    "service_id": "25",
-    "monday": "0",
-    "tuesday": "1",
-    "wednesday": "0",
-    "thursday": "1",
-    "friday": "0",
-    "saturday": "0",
-    "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
-  },
-  {
-    "service_id": "26",
-    "monday": "0",
-    "tuesday": "0",
-    "wednesday": "1",
-    "thursday": "0",
-    "friday": "0",
-    "saturday": "0",
-    "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
-  },
-  {
-    "service_id": "27",
-    "monday": "0",
-    "tuesday": "0",
-    "wednesday": "1",
-    "thursday": "0",
-    "friday": "0",
-    "saturday": "0",
-    "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "28",
     "monday": "0",
-    "tuesday": "1",
-    "wednesday": "0",
-    "thursday": "0",
-    "friday": "0",
-    "saturday": "0",
-    "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
-  },
-  {
-    "service_id": "29",
-    "monday": "0",
     "tuesday": "0",
     "wednesday": "1",
     "thursday": "0",
     "friday": "0",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "29",
+    "monday": "1",
+    "tuesday": "1",
+    "wednesday": "1",
+    "thursday": "1",
+    "friday": "1",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "30",
@@ -356,11 +356,23 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "31",
+    "monday": "0",
+    "tuesday": "0",
+    "wednesday": "0",
+    "thursday": "0",
+    "friday": "1",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "32",
     "monday": "1",
     "tuesday": "1",
     "wednesday": "0",
@@ -368,47 +380,11 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
-  },
-  {
-    "service_id": "32",
-    "monday": "1",
-    "tuesday": "1",
-    "wednesday": "1",
-    "thursday": "1",
-    "friday": "0",
-    "saturday": "0",
-    "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "33",
-    "monday": "1",
-    "tuesday": "1",
-    "wednesday": "1",
-    "thursday": "1",
-    "friday": "1",
-    "saturday": "0",
-    "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
-  },
-  {
-    "service_id": "34",
-    "monday": "1",
-    "tuesday": "1",
-    "wednesday": "1",
-    "thursday": "1",
-    "friday": "1",
-    "saturday": "0",
-    "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
-  },
-  {
-    "service_id": "35",
     "monday": "1",
     "tuesday": "1",
     "wednesday": "0",
@@ -416,8 +392,32 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "34",
+    "monday": "0",
+    "tuesday": "0",
+    "wednesday": "0",
+    "thursday": "1",
+    "friday": "1",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "35",
+    "monday": "0",
+    "tuesday": "0",
+    "wednesday": "0",
+    "thursday": "0",
+    "friday": "1",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "36",
@@ -428,20 +428,20 @@
     "friday": "0",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "37",
-    "monday": "1",
-    "tuesday": "1",
-    "wednesday": "1",
-    "thursday": "1",
+    "monday": "0",
+    "tuesday": "0",
+    "wednesday": "0",
+    "thursday": "0",
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "38",
@@ -449,23 +449,23 @@
     "tuesday": "1",
     "wednesday": "0",
     "thursday": "1",
-    "friday": "1",
+    "friday": "0",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "39",
     "monday": "1",
-    "tuesday": "1",
-    "wednesday": "1",
-    "thursday": "1",
-    "friday": "1",
+    "tuesday": "0",
+    "wednesday": "0",
+    "thursday": "0",
+    "friday": "0",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "40",
@@ -476,20 +476,20 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "41",
-    "monday": "1",
-    "tuesday": "1",
+    "monday": "0",
+    "tuesday": "0",
     "wednesday": "1",
-    "thursday": "1",
-    "friday": "1",
+    "thursday": "0",
+    "friday": "0",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "42",
@@ -500,23 +500,11 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "43",
-    "monday": "1",
-    "tuesday": "1",
-    "wednesday": "0",
-    "thursday": "1",
-    "friday": "1",
-    "saturday": "0",
-    "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
-  },
-  {
-    "service_id": "44",
     "monday": "0",
     "tuesday": "0",
     "wednesday": "0",
@@ -524,20 +512,32 @@
     "friday": "0",
     "saturday": "1",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "44",
+    "monday": "1",
+    "tuesday": "1",
+    "wednesday": "1",
+    "thursday": "1",
+    "friday": "1",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "45",
-    "monday": "0",
-    "tuesday": "0",
+    "monday": "1",
+    "tuesday": "1",
     "wednesday": "1",
     "thursday": "1",
-    "friday": "0",
+    "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "46",
@@ -548,20 +548,20 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "47",
     "monday": "1",
     "tuesday": "1",
-    "wednesday": "0",
-    "thursday": "0",
+    "wednesday": "1",
+    "thursday": "1",
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "48",
@@ -572,8 +572,8 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "49",
@@ -584,8 +584,8 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "50",
@@ -596,8 +596,8 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "51",
@@ -608,8 +608,8 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "52",
@@ -620,23 +620,11 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "53",
-    "monday": "0",
-    "tuesday": "0",
-    "wednesday": "1",
-    "thursday": "0",
-    "friday": "0",
-    "saturday": "0",
-    "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
-  },
-  {
-    "service_id": "54",
     "monday": "0",
     "tuesday": "1",
     "wednesday": "1",
@@ -644,8 +632,20 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "54",
+    "monday": "1",
+    "tuesday": "1",
+    "wednesday": "1",
+    "thursday": "1",
+    "friday": "1",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "55",
@@ -656,32 +656,128 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "56",
     "monday": "1",
-    "tuesday": "0",
+    "tuesday": "1",
     "wednesday": "0",
+    "thursday": "1",
+    "friday": "1",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "57",
+    "monday": "0",
+    "tuesday": "0",
+    "wednesday": "1",
     "thursday": "0",
     "friday": "0",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260613"
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
-    "service_id": "19-1",
+    "service_id": "58",
     "monday": "1",
     "tuesday": "1",
     "wednesday": "1",
     "thursday": "1",
+    "friday": "1",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "59",
+    "monday": "0",
+    "tuesday": "0",
+    "wednesday": "1",
+    "thursday": "0",
     "friday": "0",
     "saturday": "0",
-    "sunday": "1",
-    "start_date": "20260201",
-    "end_date": "20260612"
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "60",
+    "monday": "0",
+    "tuesday": "0",
+    "wednesday": "1",
+    "thursday": "0",
+    "friday": "0",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "61",
+    "monday": "1",
+    "tuesday": "0",
+    "wednesday": "0",
+    "thursday": "1",
+    "friday": "1",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "62",
+    "monday": "0",
+    "tuesday": "0",
+    "wednesday": "0",
+    "thursday": "0",
+    "friday": "1",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "63",
+    "monday": "1",
+    "tuesday": "1",
+    "wednesday": "1",
+    "thursday": "1",
+    "friday": "1",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "64",
+    "monday": "1",
+    "tuesday": "1",
+    "wednesday": "0",
+    "thursday": "0",
+    "friday": "1",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
+  },
+  {
+    "service_id": "65",
+    "monday": "0",
+    "tuesday": "0",
+    "wednesday": "1",
+    "thursday": "1",
+    "friday": "0",
+    "saturday": "0",
+    "sunday": "0",
+    "start_date": "20260809",
+    "end_date": "20270403"
   },
   {
     "service_id": "3-1",
@@ -692,11 +788,11 @@
     "friday": "0",
     "saturday": "1",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260612"
+    "start_date": "20260809",
+    "end_date": "20270402"
   },
   {
-    "service_id": "44-1",
+    "service_id": "43-1",
     "monday": "0",
     "tuesday": "0",
     "wednesday": "0",
@@ -704,7 +800,19 @@
     "friday": "1",
     "saturday": "0",
     "sunday": "0",
-    "start_date": "20260201",
-    "end_date": "20260612"
+    "start_date": "20260809",
+    "end_date": "20270402"
+  },
+  {
+    "service_id": "58-1",
+    "monday": "1",
+    "tuesday": "1",
+    "wednesday": "1",
+    "thursday": "1",
+    "friday": "0",
+    "saturday": "0",
+    "sunday": "1",
+    "start_date": "20260809",
+    "end_date": "20270402"
   }
 ]
