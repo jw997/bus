@@ -25,7 +25,7 @@ function createMap() {
 	//element.style = 'height:100vh;';
 	// Create Leaflet map on map element.
 	// Add OSM tile layer to the Leaflet map.
-	osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+	osm = L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 	});
 
